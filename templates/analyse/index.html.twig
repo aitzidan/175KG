@@ -1,0 +1,169 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="container">
+        <div class="page-inner">
+            <div class="page-header">
+                <h3 class="fw-bold mb-3">Analyse</h3>
+                <ul class="breadcrumbs mb-3">
+                    <li class="nav-home">
+                        <a href="#">
+                            <i class="icon-home"></i>
+                        </a>
+                    </li>
+                    {# <li class="separator">
+                        <i class="icon-arrow-right"></i>
+                    </li> #}
+                    {# <li class="nav-item">
+                        <a href="/user/listUsers">Liste des utilisateurs</a>
+                    </li> #}
+                </ul>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Importer fichier </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                {% if codeStatut == "OK" %}
+                                    <div class="form-group col-sm-12">
+                                        <div class="alert alert-success" role="alert">
+                                            {{ response }}
+                                        </div>
+                                    </div>
+                                {% elseif codeStatut != "" %}
+                                    <div class="form-group col-sm-12">
+                                        <div class="alert alert-danger" role="alert">
+                                            {{ response }}
+                                        </div>
+                                    </div>
+                                {% endif %}
+
+                                <form class="forms-sample col-md-12" id="form" enctype="multipart/form-data">
+                                    <div class="form-group row">
+                                        <label class="col-sm-2 col-form-label">Titre : <span style="color:red">*</span></label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" id="titre" name="titre">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <label class="col-sm-1 col-form-label">Date début : <span style="color:red">*</span></label>
+                                        <div class="col-sm-5">
+                                            <input type="date" class="form-control" id="date_debut" name="date_debut">
+                                        </div>
+                                        <label class="col-sm-1 col-form-label">Date fin : <span style="color:red">*</span></label>
+                                        <div class="col-sm-5">
+                                            <input type="date" class="form-control" id="date_fin" name="date_fin">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+
+                                    <div class='col-md-6'>
+                                        <div class="form-group row">
+                                            <label class="col-sm-2 col-form-label">Fichier balance : <span style="color:red">*</span></label>
+                                            <div class="col-sm-6">
+                                                <input type="file" class="form-control" name="file_balance[]">
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <button type="button" class="btn btn-info" onclick='addFile("balance")'><i class="fa fa-plus"></i></button>
+                                            </div>
+                                        </div>
+                                        <div id='otherFileBalance'></div>
+                                    </div>
+                                    <div class='col-md-6'>
+                                        <div class="form-group row">
+                                            <label class="col-sm-2 col-form-label">Fichier caisse : <span style="color:red">*</span></label>
+                                            <div class="col-sm-6">
+                                                <input type="file" class="form-control" name="file_caisse[]">
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <button type="button" class="btn btn-info" onclick='addFile("caisse")'><i class="fa fa-plus"></i></button>
+                                            </div>
+                                        </div>
+                                        <div id='otherFileCaisse'></div>
+                                    </div>
+                                    <div>
+                                    <div style='display:flex;justify-content: center;'>
+                                        <input type="submit" class="btn btn-success waves-effect waves-light" value="Analyser">
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    function addFile(type) {
+        var div = document.createElement('div');
+        div.className = 'form-group row';
+
+        var label = document.createElement('label');
+        label.className = 'col-sm-2 col-form-label';
+        label.innerHTML = 'Fichier ' + type + ' : <span style="color:red">*</span>';
+        div.appendChild(label);
+
+        var inputDiv = document.createElement('div');
+        inputDiv.className = 'col-sm-6';
+        var input = document.createElement('input');
+        input.type = 'file';
+        input.className = 'form-control';
+        input.name = 'file_' + type + '[]';
+        inputDiv.appendChild(input);
+        div.appendChild(inputDiv);
+
+        var removeButtonDiv = document.createElement('div');
+        removeButtonDiv.className = 'col-sm-4';
+        var removeButton = document.createElement('button');
+        removeButton.type = 'button';
+        removeButton.className = 'btn btn-danger';
+        removeButton.innerHTML = '<i class="fa fa-minus"></i>';
+        removeButton.onclick = function() {
+            div.remove();
+        };
+        removeButtonDiv.appendChild(removeButton);
+        div.appendChild(removeButtonDiv);
+
+        document.getElementById('otherFile' + type.charAt(0).toUpperCase() + type.slice(1)).appendChild(div);
+    }
+
+        document.getElementById('form').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        var formData = new FormData(this);
+
+         $.ajax({
+                type : "POST",
+                url: "/analyse/checkFile",
+                data: formData,
+                cache: false,
+                processData: false,
+                contentType: false,
+                success : function(data) {
+                    console.log(data)
+                    {# if (data.response == "success") {
+                       
+                        
+                    }else{
+                        $(".fadeMe").css("visibility","hidden");
+                        new PNotify({
+                            text: data.response,
+                            type: 'error',
+                            styling: 'bootstrap3',
+                            width: "400px"
+                        });
+                    } #}
+                }
+
+            });
+    });
+
+</script>
+{% endblock %}

@@ -1,0 +1,232 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+
+
+{# 
+        <div class="content-wrapper">
+            <div class="row">
+                <div class="col-sm-6">
+                <h3 class="mb-0 font-weight-bold">Utilisateurs</h3>
+                </div>
+                <div class="col-sm-6">
+                </div>
+            </div>
+        <div class="row mt-12">
+            <div class="col-xl-12 d-flex grid-margin stretch-card">
+            <div class="card">
+                <div class="card-body">
+                <div class="d-flex flex-wrap justify-content-between">
+                    <h4 class="card-title mb-3">Modifier profil</h4>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="row">
+                            <form class="forms-sample" method="POST" id="form" enctype="multipart/form-data" style="width:100%">
+                                <div class="page-header p-4 mb-12">
+                                    <div class="row">
+                                        <div class="form-group row col-sm-6">
+                                            <label class="col-sm-3 col-form-label">Libélle : <span style="color:red">*</span></label>
+                                            <div class="col-sm-9">
+                                                <input type="text" class="form-control" id="libelle" name="libelle" value="{{ data.libelle }}">
+                                            </div>
+                                        </div>
+                                        <div class="form-group row col-sm-6">
+                                            <label class="col-sm-3 col-form-label">Description : <span style="color:red">*</span></label>
+                                            <div class="col-sm-9">
+                                                <input type="text" class="form-control" id="description" name="description" value="{{ data.description }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="display:flex;justify-content: space-between">
+                                    <label class="pb-1" style="color:#4566ad;font-size: 23px;"><strong>Liste des roles</strong></label>
+                                    <button class="mb-2" type="button" id="checkAllRoles">Désélectionner tout</button>
+                                </div>
+                                <div class="page-header  p-3">
+                                    <div class="form-group col-md-12" style="display:flex;flex-wrap: wrap;">
+                                        <table style="width: 100%;border:none" class="table-bordered">
+                                            {% for category, roles in rolesListe %}
+                                                <tr>
+                                                    <th style="padding: 5px">
+                                                        <b class="text-primary h5">
+                                                            <input type="checkbox" class="category-checkbox" onclick="selectAll(this, '{{ category }}')" />
+                                                            {{ category }}
+                                                        </b>
+                                                    </th>
+                                                </tr>
+                                                <tr>
+                                                    {% for role in roles %}
+                                                        <td style="padding: 5px">
+                                                            <div class="border-checkbox-group border-checkbox-group-default">
+                                                                <input class="border-checkbox user-check {{ category }}" name="roles[{{ role.id }}]" type="checkbox" id="checkbox{{ role.id }}" {% if role.id in profilRoles %}checked{% endif %}>
+                                                                <label class="border-checkbox-label" for="checkbox{{ role.id }}">{{ role.description }}</label>
+                                                            </div>
+                                                        </td>
+                                                    {% endfor %}
+                                                </tr>
+                                            {% endfor %}
+                                        </table>
+                                    </div>
+                                </div>
+                                <div style="display:flex;justify-content: center;">
+                                    <input type="submit" class="btn btn-success waves-effect waves-light" value="Mettre à jour le profil">
+                                </div>
+                            </form>    
+
+                        </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        </div> #}
+
+         <div class="container">
+        <div class="page-inner">
+        <div class="page-header">
+            <h3 class="fw-bold mb-3">Utilisateurs</h3>
+            <ul class="breadcrumbs mb-3">
+            <li class="nav-home">
+                <a href="#">
+                <i class="icon-home"></i>
+                </a>
+            </li>
+            <li class="separator">
+                <i class="icon-arrow-right"></i>
+            </li>
+            <li class="nav-item">
+                <a href="/user/listProfils">Liste des profils</a>
+            </li>
+            </ul>
+        </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                <div class="card-title">Modifier profil</div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% if codeStatut == "OK" %}
+                            <div  class="form-group col-sm-12">
+                                <div class="alert alert-success" role="alert">
+                                    {{response}}
+                                </div>
+                            </div>
+                        {% elseif codeStatut != ""  %}
+                            <div  class="form-group col-sm-12">
+                                <div class="alert alert-danger" role="alert">
+                                    {{response}}
+                                </div>
+                            </div>
+                        {% endif %}
+
+              <form class="forms-sample" method="POST" id="form" enctype="multipart/form-data" style="width:100%">
+                                <div class="page-header p-4 mb-12">
+                                    <div class="row">
+                                        <div class="form-group row col-sm-6">
+                                            <label class="col-sm-3 col-form-label">Libélle : <span style="color:red">*</span></label>
+                                            <div class="col-sm-9">
+                                                <input type="text" class="form-control" id="libelle" name="libelle" value="{{ data.libelle }}">
+                                            </div>
+                                        </div>
+                                        <div class="form-group row col-sm-6">
+                                            <label class="col-sm-3 col-form-label">Description : <span style="color:red">*</span></label>
+                                            <div class="col-sm-9">
+                                                <input type="text" class="form-control" id="description" name="description" value="{{ data.description }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="display:flex;justify-content: space-between">
+                                    <label class="pb-1" style="color:#4566ad;font-size: 23px;"><strong>Liste des roles</strong></label>
+                                    <button class="mb-2" type="button" id="checkAllRoles">Désélectionner tout</button>
+                                </div>
+                                <div class="page-header  p-3">
+                                    <div class="form-group col-md-12" style="display:flex;flex-wrap: wrap;">
+                                        <table style="width: 100%;border:none" class="table-bordered">
+                                            {% for category, roles in rolesListe %}
+                                                <tr>
+                                                    <th style="padding: 5px">
+                                                        <b class="text-primary h5">
+                                                            <input type="checkbox" class="category-checkbox" onclick="selectAll(this, '{{ category }}')" />
+                                                            {{ category }}
+                                                        </b>
+                                                    </th>
+                                                </tr>
+                                                <tr>
+                                                    {% for role in roles %}
+                                                        <td style="padding: 5px">
+                                                            <div class="border-checkbox-group border-checkbox-group-default">
+                                                                <input class="border-checkbox user-check {{ category }}" name="roles[{{ role.id }}]" type="checkbox" id="checkbox{{ role.id }}" {% if role.id in profilRoles %}checked{% endif %}>
+                                                                <label class="border-checkbox-label" for="checkbox{{ role.id }}">{{ role.description }}</label>
+                                                            </div>
+                                                        </td>
+                                                    {% endfor %}
+                                                </tr>
+                                            {% endfor %}
+                                        </table>
+                                    </div>
+                                </div>
+                                <div style="display:flex;justify-content: center;">
+                                    <input type="submit" class="btn btn-success waves-effect waves-light" value="Mettre à jour le profil">
+                                </div>
+                            </form>    
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+          
+{% endblock %}
+{% block javascripts %} 
+    <script>
+        // JavaScript to handle checking all checkboxes
+        document.getElementById('checkAllRoles').addEventListener('click', function () {
+            var checkboxes = document.querySelectorAll('input[type="checkbox"].user-check');
+            var button = document.getElementById('checkAllRoles');
+            var checkboxesC = document.querySelectorAll('input[type="checkbox"].category-checkbox');
+
+            if (button.innerText === 'Selectionner tout') 
+            {
+                checkboxes.forEach(function (checkbox) {
+                    checkbox.checked = true;
+                });
+
+                checkboxesC.forEach(function (checkbox) {
+                    checkbox.checked = true;
+                });
+
+                button.innerText = 'Désélectionner tout';
+                
+            } 
+            else 
+            {
+                checkboxes.forEach(function (checkbox) {
+                    checkbox.checked = false;
+                });
+
+                checkboxesC.forEach(function (checkbox) {
+                    checkbox.checked = false;
+                });
+
+                button.innerText = 'Selectionner tout';
+            }
+
+
+        });
+
+
+        function selectAll(categoryCheckbox, category) {
+            var rolesCheckboxes = document.getElementsByClassName(category);
+            for (var i = 0; i < rolesCheckboxes.length; i++) {
+                rolesCheckboxes[i].checked = categoryCheckbox.checked;
+            }
+        }
+
+    </script>
+{% endblock %}

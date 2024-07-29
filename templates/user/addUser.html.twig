@@ -1,0 +1,326 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+
+    <div class="container">
+        <div class="page-inner">
+        <div class="page-header">
+            <h3 class="fw-bold mb-3">Utilisateurs</h3>
+            <ul class="breadcrumbs mb-3">
+            <li class="nav-home">
+                <a href="#">
+                <i class="icon-home"></i>
+                </a>
+            </li>
+            <li class="separator">
+                <i class="icon-arrow-right"></i>
+            </li>
+            <li class="nav-item">
+                <a href="/user/listUsers">Liste des utilisateurs</a>
+            </li>
+            </ul>
+        </div>
+         <div class="row">
+            <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                <div class="card-title">Liste des utilisateurs</div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% if codeStatut == "OK" %}
+                            <div  class="form-group col-sm-12">
+                                <div class="alert alert-success" role="alert">
+                                    {{response}}
+                                </div>
+                            </div>
+                        {% elseif codeStatut != ""  %}
+                            <div  class="form-group col-sm-12">
+                                <div class="alert alert-danger" role="alert">
+                                    {{response}}
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <form class="forms-sample col-md-12" method="POST" id="form"  enctype="multipart/form-data">
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label">Nom utilisateur : <span style="color:red">*</span></label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="nom" name="nom" value="{{data.nom}}">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label">Tele : <span style="color:red">*</span></label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="tele" name="tele" value="{{data.tele}}">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label">Email : <span style="color:red">*</span></label>
+                                <div class="col-sm-10">
+                                    <input type="email" class="form-control" id="email" name="email" value="{{data.email}}">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label">Adresse : <span style="color:red">*</span></label>
+                                <div class="col-sm-10">
+                                    <input type="text" class="form-control" id="address" name="address" value="{{data.address}}">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label">Mot de passe : <span style="color:red">*</span></label>
+                                <div class="col-sm-10">
+                                    <input type="password" class="form-control" id="password" name="password">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label">Profil : <span style="color:red">*</span></label>
+                                <div class="col-sm-10">
+                                    <select class='select2' class="form-control" id="profil" name="profil[]" multiple onchange="restorePero()" style="width: 100%;">
+                                        {% for p in profils %}
+                                            <option value="{{p.id}}">{{p.nom}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label">Photo :</label>
+                                <div class="col-sm-10">
+                                    <input type="file" class="form-control-file" id="picture" name="picture">
+                                </div>
+                            </div>
+
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label">Active : </label>
+                                <div class="col-sm-10">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="active" name="active" checked> Activé cette utilisateur
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div style='display:flex;justify-content: center;'>
+                                <input type="submit" class="btn btn-success waves-effect waves-light" value="Ajouter l'utilisateur">
+                            </div>
+                        </form>    
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+{% block javascripts %} 
+
+<script>
+
+    var RolesChek = [];
+
+    $(document).ready(function() 
+    {
+
+    
+        // Find the button by its ID
+        var openCustomizeProfileButton = $("#openCustomizeProfileButton");
+
+        // Find the modal by its ID
+        var customizeProfileModal = $("#customizeProfileModal");
+
+        // Add a click event handler to the button
+        openCustomizeProfileButton.on("click", function() {
+            
+
+            var ifPersoInput = document.getElementById("ifPerso");
+
+            if(ifPersoInput.value != 1)
+            {
+                var profilPeson = document.getElementById("profilPeson");
+
+                // Change the style to "block"
+                if (profilPeson) {
+                    profilPeson.style.display = "none";
+                }
+
+                var selectedProfiles = $("#profil").val(); // Assuming "profil" is the ID of your select element
+
+                // Do something with the selected profiles
+                if (selectedProfiles && selectedProfiles.length > 0) {
+                    $.ajax({
+                        url: "/getRolesChecked/",
+                        type: "POST",
+                        data: {idProfils: selectedProfiles},
+                        success: function (data) {
+
+                            RolesChek = data;
+                            // Clear existing checkboxes
+                            $('#toAddRole').empty();
+
+                            // Iterate over roles and create checkboxes
+                            {% for role in roles %}
+                                var checked = data.some(function(d) {
+                                    return d.idRole === {{ role.id }} && d.roleProf === true;
+                                });
+
+                                var checkbox = $('<div class="checkbox col-md-3" style="border:1px solid grey"> \
+                                    <label> \
+                                        <input type="checkbox" name="roles[]" value="{{ role.id }}" ' + (checked ? 'checked' : '') + '> {{ role.name }} \
+                                    </label> \
+                                </div>');
+
+                                $('#toAddRole').append(checkbox);
+                            {% endfor %}
+                        },
+                        error: function (xhr, ajaxOptions, thrownError) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: "une erreur s'est produite",
+                            })
+                        }
+                    });
+
+                }
+                else{
+                        $('#toAddRole').empty();
+
+                        // Iterate over roles and create checkboxes
+                        {% for role in roles %}
+
+                            var checkbox = $('<div class="checkbox col-md-3" style="border:1px solid grey"> \
+                                <label> \
+                                    <input type="checkbox" name="roles[]" value="{{ role.id }}"> {{ role.name }} \
+                                </label> \
+                            </div>');
+
+                            $('#toAddRole').append(checkbox);
+                        {% endfor %}
+
+                }
+            }
+
+            // Open the modal when the button is clicked
+            customizeProfileModal.modal("show");
+        });
+    });
+
+    function savePersonlisation()
+    {
+
+        var customizeProfileModal = $("#customizeProfileModal");
+
+        var checkStates = checkCheckboxStates();
+
+        var libelleInput = document.getElementById("libelle");
+        var libelleValue = libelleInput.value;
+
+        if(checkStates == 0)
+        {
+            customizeProfileModal.modal("hide");
+
+            Swal.fire({
+                icon: 'info', 
+                title: 'Information',
+                text: "Vous n'avez apporté aucune modification à vos rôles de profil.",
+            });
+        }
+        else if(checkStates == 2)
+        {
+            customizeProfileModal.modal("hide");
+
+             Swal.fire({
+                icon: 'info', 
+                title: 'Information',
+                text: "Veuillez vous selctionner au moin un role.",
+            });
+        }
+        else if (libelleValue.trim() === "") 
+        {
+            customizeProfileModal.modal("hide");
+
+            Swal.fire({
+                icon: 'info', 
+                title: 'Information',
+                text: "le champ libelle est obliagtoire.",
+            });
+        }
+        else
+        {
+            var profilPeson = document.getElementById("profilPeson");
+
+            // Change the style to "inline"
+            if (profilPeson) {
+                profilPeson.style.display = "inline";
+            }
+
+            var ifPersoInput = document.getElementById("ifPerso");
+            if (ifPersoInput) {
+                ifPersoInput.value = "1";
+            }
+
+            var customizeProfileModal = $("#customizeProfileModal");
+
+            customizeProfileModal.modal("hide");
+        }
+
+        
+
+    }
+
+    function restorePero()
+    {
+
+        var profilPeson = document.getElementById("profilPeson");
+
+        // Change the style to "block"
+        if (profilPeson) {
+            profilPeson.style.display = "none";
+        }
+
+        var ifPersoInput = document.getElementById("ifPerso");
+        if (ifPersoInput) {
+            ifPersoInput.value = "0";
+        }
+    }
+
+    function checkCheckboxStates() 
+    {
+
+
+        var checkboxes = document.querySelectorAll('input[name="roles[]"]');
+        var check = 0;
+        checkboxes.forEach(function(checkbox) {
+            var roleID = checkbox.value;
+            var roleProfChecked = checkbox.checked;
+            
+            var roleData = RolesChek.find(function(role) {
+                return role.idRole === parseInt(roleID);
+            });
+            
+            if (roleData) {
+                var roleProf = roleData.roleProf === true;
+                
+                // Compare the current checkbox state with the data in RolesChek
+                if (roleProfChecked !== roleProf) {
+                    check = 1; 
+                }
+            }
+            
+            if (RolesChek.length === 0 && Array.from(checkboxes).some(checkbox => checkbox.checked)) 
+            {
+                check = 1; 
+            }
+            else if(!Array.from(checkboxes).some(checkbox => checkbox.checked))
+            {
+                check = 2;
+            }
+        });
+
+        return check;
+    }
+
+
+</script>
+
+{% endblock %}
