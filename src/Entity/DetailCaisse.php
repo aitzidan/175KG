@@ -82,6 +82,12 @@ class DetailCaisse
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $log_action = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $etat_prix = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $etatPoids = null;
+
 
     public function getId(): ?int
     {
@@ -359,6 +365,30 @@ class DetailCaisse
     public function setLogAction(?string $log_action): static
     {
         $this->log_action = $log_action;
+
+        return $this;
+    }
+
+    public function getEtatPrix(): ?int
+    {
+        return $this->etat_prix;
+    }
+
+    public function setEtatPrix(?int $etat_prix): static
+    {
+        $this->etat_prix = $etat_prix;
+
+        return $this;
+    }
+
+    public function getEtatPoids(): ?int
+    {
+        return $this->etatPoids;
+    }
+
+    public function setEtatPoids(?int $etatPoids): static
+    {
+        $this->etatPoids = $etatPoids;
 
         return $this;
     }

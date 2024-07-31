@@ -229,28 +229,50 @@ class AnalyseController extends AbstractController
                 $caisse = $this->AnalyseService->getCaisseByAnalyse($id_analyse);
                 for ($j=0; $j < count($caisse); $j++) { 
                     $log_action = "";
-
+                    
                     //TODO: Data Balance
                     $qte = $caisse[$j]->getQte();
-                    $prixV  = $caisse[$i]->getPrixV();
+                    $prixV = $caisse[$i]->getPrixV();
                     $totalNet  = $caisse[$i]->getTotalNet();
                     $code  = $caisse[$i]->getCode();
-
+                    
+                    $etatPoids = 2;
+                    $etatPrix = 2;
+                    
                     //TODO: Data caisse
-
+                    
                     $balance = $this->AnalyseService->getBalanceByCode($code , $id_analyse);
-                    $montant = $balance->getMontant();
-                    $poids = $balance->getPoids();
+                    if($balance){
 
-                    //TODO: Check entite
-                    $checkPrix = ($montant) / $poids;
-                    
-                    
-
-
+                        $montant = $balance->getMontant();
+                        $poids = $balance->getPoids();
+    
+                        //TODO: Check prix
+                        $checkPrix = ($montant) / $poids;
+                        
+                        if( ($prixV - 1) <=  $checkPrix && $checkPrix <= ($prixV + 1)) {
+                            $log_action .= '- OK (Prix).<br/>';
+                            $etatPrix = 1;
+                        } else if ($checkPrix < $prixV) {
+                            $log_action .= '- Le prix de caisse est inférieur au montant en balance.<br/>';
+                        } else if ($checkPrix > $prixV) {
+                            $log_action .= '- Le prix de caisse est supérieur au montant en balance.<br/>';
+                        }
+    
+                        //TODO: Check poids
+                        $qteCheck = ($totalNet * $poids) / $montant;
+                        
+                        if(  $qteCheck == $qte) {
+                            $log_action .= '- OK (Quantité).<br/>';
+                            $etatPoids = 1;
+                        } else if ($qteCheck < $qte) {
+                            $log_action .= '- La quantité de caisse est inférieur au poids en balance.<br/>';
+                        } else if ($qteCheck > $qte) {
+                            $log_action .= '- La quantité de caisse est supérieur au montant en balance.<br/>';
+                        }
+                        $this->AnalyseService->majCaisse( $caisse[$i] , $etatPoids , $etatPrix , $log_action ,$codeArticle );
+                    }
                 }
-
-                
 
                 $codeStatut="OK"; 
                 

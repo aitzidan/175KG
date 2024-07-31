@@ -105,4 +105,9 @@ class AnalyseRepository extends ServiceEntityRepository
         return $this->em->getRepository(DetailBalance::class)->findOneBy(['code'=>$code ,'id_analyse'=>$id_analyse]);
     }
     
+    public function saveCaisse(DetailCaisse $caisse): void
+    {
+        $this->em->persist($caisse);
+        $this->em->flush();
+    }
 }

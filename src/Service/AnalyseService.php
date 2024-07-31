@@ -141,5 +141,12 @@ class AnalyseService
     {
         return $this->analyseRepo->getBalanceByCode($code , $id_analyse);
     }
-    
+    public function majCaisse($caisse , $etatPoids , $etatPrix, $log_action ,$codeArticle):void
+    {
+        $caisse->setLogAction($log_action);
+        $caisse->setEtatPoids($etatPoids);
+        $caisse->setEtatPrix($etatPrix);
+        $caisse->setCode($codeArticle);
+        $this->analyseRepo->saveCaisse($caisse);
+    }
 }
