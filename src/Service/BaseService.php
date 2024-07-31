@@ -3,12 +3,14 @@
 namespace App\Service;
 
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\User;
+use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 
 class BaseService
@@ -17,12 +19,16 @@ class BaseService
     private $defaultImagePath = '/assets/images/Users/user.png';
     private $uploadDir;
     private $entityManager;
+    private $kernel;
+    private $filesystem;
 
-    public function __construct(ParameterBagInterface $parameterBag,EntityManagerInterface $entityManager)
+    public function __construct(ParameterBagInterface $parameterBag,EntityManagerInterface $entityManager , KernelInterface $kernel)
     {
         $this->uploadDir = $parameterBag->get('imagesUploadPath');
         $this->session = new Session();
         $this->entityManager = $entityManager;
+        $this->kernel = $kernel;
+        $this->filesystem = new Filesystem();
     }
 
     public function isConnected(): bool
@@ -160,5 +166,43 @@ class BaseService
         return array("response" => $response);
     }
 
+    public function uploadFileAnalyse(UploadedFile $file, string $uploadDir): array
+    {
+        $response = [
+            'status' => 'ERROR',
+            'url' => '',
+            'message' => '',
+        ];
+
+        $fileError = $file->getError();
+        if ($fileError > 0) {
+            $response['message'] = "File transfer error!";
+            return $response;
+        }
+
+        $extension = $file->getClientOriginalExtension();
+        $validExtensions = ['csv', 'xls', 'xlsx'];
+
+        if (!in_array(strtolower($extension), $validExtensions)) {
+            $response['message'] = "Invalid file extension! Please upload a csv, xls, or xlsx file.";
+            return $response;
+        }
+
+        $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+        $newFilename = sha1(uniqid()) . '.' . $extension;
+
+        // try {
+            $uploadPath = $this->kernel->getProjectDir() ."/public/". $uploadDir;
+            $file->move($uploadPath, $newFilename);
+
+            $response['status'] = 'SUCCESS';
+            $response['url'] = $uploadDir . '/' . $newFilename;
+            $response['message'] = "File uploaded successfully!";
+        // } catch (FileException $e) {
+        //     $response['message'] = "File upload error: " . $e->getMessage();
+        // }
+
+        return $response;
+    }
 
 }

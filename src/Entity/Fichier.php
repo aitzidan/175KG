@@ -20,6 +20,10 @@ class Fichier
     #[ORM\JoinColumn(nullable: false)]
     private ?TypeFichier $type = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Analyse $id_analyse = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -45,6 +49,18 @@ class Fichier
     public function setType(?TypeFichier $type): static
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    public function getIdAnalyse(): ?Analyse
+    {
+        return $this->id_analyse;
+    }
+
+    public function setIdAnalyse(?Analyse $id_analyse): static
+    {
+        $this->id_analyse = $id_analyse;
 
         return $this;
     }

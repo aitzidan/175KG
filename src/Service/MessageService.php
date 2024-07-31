@@ -23,7 +23,10 @@ class MessageService
             "PROFIL-NOT-EXIST" => "Le profil spécifié n'existe pas !",
             "EMAIL_EXIST"=>"Email déja exist !",
             "ERROR" => "Une erreur s'est produite !",
-
+            "ERROR_ENTETE"=> "Veuillez l'entéte de fichier",
+            "ERROR_DATE"=>"Veuillez vérifier votre date",
+            "ERROR_FILE"=>"Veuillez l'entéte de fichier",
+            "ERROR_UPLOAD_DATA"=>"Erreur dans la sauvguarde data"
         );
 
         return $listMessage[$CODEERROR];

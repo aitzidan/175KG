@@ -28,6 +28,23 @@ class DetailBalance
     #[ORM\Column]
     private ?float $montant = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Analyse $id_analyse = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $log_action = null;
+
+
+    #[ORM\Column(nullable: true)]
+    private ?int $etatPoids = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $etatPrix = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $code = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -89,6 +106,66 @@ class DetailBalance
     public function setMontant(float $montant): static
     {
         $this->montant = $montant;
+
+        return $this;
+    }
+
+    public function getIdAnalyse(): ?Analyse
+    {
+        return $this->id_analyse;
+    }
+
+    public function setIdAnalyse(?Analyse $id_analyse): static
+    {
+        $this->id_analyse = $id_analyse;
+
+        return $this;
+    }
+
+    public function getLogAction(): ?string
+    {
+        return $this->log_action;
+    }
+
+    public function setLogAction(string $log_action): static
+    {
+        $this->log_action = $log_action;
+
+        return $this;
+    }
+
+    public function getEtatPoids(): ?int
+    {
+        return $this->etatPoids;
+    }
+
+    public function setEtatPoids(?int $etatPoids): static
+    {
+        $this->etatPoids = $etatPoids;
+
+        return $this;
+    }
+
+    public function getEtatPrix(): ?int
+    {
+        return $this->etatPrix;
+    }
+
+    public function setEtatPrix(?int $etatPrix): static
+    {
+        $this->etatPrix = $etatPrix;
+
+        return $this;
+    }
+
+    public function getCode(): ?int
+    {
+        return $this->code;
+    }
+
+    public function setCode(?int $code): static
+    {
+        $this->code = $code;
 
         return $this;
     }

@@ -39,7 +39,7 @@ class DetailCaisse
     #[ORM\Column(type: 'float')]
     private ?float $prixV = null;
 
-    #[ORM\Column(type: 'integer')]
+    #[ORM\Column(type: 'float')]
     private ?int $qte = null;
 
     #[ORM\Column(type: 'float')]
@@ -74,6 +74,13 @@ class DetailCaisse
 
     #[ORM\Column(type: 'text', nullable: true)]
     private ?string $notes = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Analyse $id_analyse = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $log_action = null;
 
 
     public function getId(): ?int
@@ -188,12 +195,12 @@ class DetailCaisse
         return $this;
     }
 
-    public function getQte(): ?int
+    public function getQte(): ?float
     {
         return $this->qte;
     }
 
-    public function setQte(int $qte): static
+    public function setQte(float $qte): static
     {
         $this->qte = $qte;
 
@@ -328,6 +335,30 @@ class DetailCaisse
     public function setNotes(?string $notes): static
     {
         $this->notes = $notes;
+
+        return $this;
+    }
+
+    public function getIdAnalyse(): ?Analyse
+    {
+        return $this->id_analyse;
+    }
+
+    public function setIdAnalyse(?Analyse $id_analyse): static
+    {
+        $this->id_analyse = $id_analyse;
+
+        return $this;
+    }
+
+    public function getLogAction(): ?string
+    {
+        return $this->log_action;
+    }
+
+    public function setLogAction(?string $log_action): static
+    {
+        $this->log_action = $log_action;
 
         return $this;
     }

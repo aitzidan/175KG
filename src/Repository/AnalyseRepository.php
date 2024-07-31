@@ -3,8 +3,12 @@
 namespace App\Repository;
 
 use App\Entity\Analyse;
+use App\Entity\DetailBalance;
+use App\Entity\DetailCaisse;
+use App\Entity\Fichier;
 use App\Entity\TypeFichier;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -14,10 +18,12 @@ use Doctrine\Persistence\ManagerRegistry;
 class AnalyseRepository extends ServiceEntityRepository
 {
     public $em;
-    public function __construct(ManagerRegistry $registry , EntityManagerInterface $em)
+    public $conn;
+    public function __construct(ManagerRegistry $registry , EntityManagerInterface $em , Connection $conn)
     {
         parent::__construct($registry, Analyse::class);
         $this->em = $em;
+        $this->conn = $conn;
     }
 
     //    /**
@@ -48,4 +54,55 @@ class AnalyseRepository extends ServiceEntityRepository
     public function getTypeFichier(){
         return $this->em->getRepository(TypeFichier::class)->findAll();
     }
+    public function getType($id){
+        return $this->em->getRepository(TypeFichier::class)->find($id);
+    }
+
+    public function save(Analyse $analyse): void
+    {
+        $this->em->persist($analyse);
+        $this->em->flush();
+    }
+    public function saveFile(Fichier $file): void
+    {
+        $this->em->persist($file);
+        $this->em->flush();
+    }
+    public function getFichier($id)
+    {
+        return $this->em->getRepository(Fichier::class)->find($id);
+    }
+    
+    public function getBalanceByAnalyse($id){
+        return $this->em->getRepository(DetailBalance::class)->findBy(['id_analyse'=>$id]);
+    }
+
+    public function getPoidsCaisse($codeArticle , $id_analyse){
+        $sql="SELECT SUM(qte) FROM `detail_caisse` where code = ".$codeArticle." and id_analyse_id = ".$id_analyse." ";
+        $stmt = $this->conn->prepare($sql);
+        $stmt = $stmt->executeQuery();
+        $resulat = $stmt->fetchOne();
+        return $resulat;
+    }
+
+    public function saveBalance(DetailBalance $balance): void
+    {
+        $this->em->persist($balance);
+        $this->em->flush();
+    }
+    public function getPrixCaisse($codeArticle , $id_analyse){
+        $sql="SELECT SUM(prix_v) FROM `detail_caisse` where code = ".$codeArticle." and id_analyse_id = ".$id_analyse." ";
+        $stmt = $this->conn->prepare($sql);
+        $stmt = $stmt->executeQuery();
+        $resulat = $stmt->fetchOne();
+        return $resulat;
+    }
+
+    public function getCaisseByAnalyse($id){
+        return $this->em->getRepository(DetailCaisse::class)->findBy(['id_analyse'=>$id]);
+    }
+    public function getBalanceByCode($code , $id_analyse){
+        return $this->em->getRepository(DetailBalance::class)->findOneBy(['code'=>$code ,'id_analyse'=>$id_analyse]);
+    }
+    
 }
