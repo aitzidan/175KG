@@ -4,7 +4,13 @@
         <meta charset="UTF-8">
         <title>{% block title %}Welcome!{% endblock %}</title>
         <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text><text y=%221.3em%22 x=%220.2em%22 font-size=%2276%22 fill=%22%23fff%22>sf</text></svg>">
-         <script src="{{ asset('assets/js/plugin/webfont/webfont.min.js')}}"></script>
+        <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css')}}" />
+        <link rel="stylesheet" href="{{ asset('assets/css/plugins.min.css')}}" />
+        <link rel="stylesheet" href="{{ asset('assets/css/kaiadmin.min.css')}}" />
+
+        <link rel="stylesheet" href="{{ asset('assets/css/demo.css')}}" />
+        <link rel="stylesheet" href="{{ asset('assets/css/style.css')}}" />
+        <script src="{{ asset('assets/js/plugin/webfont/webfont.min.js')}}"></script>
         <script>
             WebFont.load({
                 google: { families: ["Public Sans:300,400,500,600,700"] },
@@ -23,15 +29,7 @@
             });
         </script>
         {% block stylesheets %}
-            <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css')}}" />
-            <link rel="stylesheet" href="{{ asset('assets/css/plugins.min.css')}}" />
-            <link rel="stylesheet" href="{{ asset('assets/css/kaiadmin.min.css')}}" />
-
-            <link rel="stylesheet" href="{{ asset('assets/css/demo.css')}}" />
-            <link rel="stylesheet" href="{{ asset('assets/css/style.css')}}" />
         {% endblock %}
-
-        
     </head>
     <body>
         <div class="wrapper">
@@ -42,7 +40,7 @@
                 <div class="logo-header" data-background-color="white">
                     <a href="index.html" class="logo">
                     <img
-                        src="{{ asset('assets/img/logo.png')}}"
+                        src="{{ asset('assets/img/logo.jpeg')}}"
                         alt="navbar brand"
                         class="navbar-brand"
                         height="60"
@@ -72,28 +70,58 @@
                             <span class="caret"></span>
                             </a>
                             <div class="collapse" id="sidebarLayouts">
-                            <ul class="nav nav-collapse">
-                                <li>
-                                <a href="/user/listUsers">
-                                    <span class="sub-item">Utilisateurs</span>
-                                </a>
-                                </li>
-                                <li>
-                                <a href="/user/listProfils">
-                                    <span class="sub-item">Profils</span>
-                                </a>
-                                </li>
-                            </ul>
+                                <ul class="nav nav-collapse">
+                                    <li>
+                                        <a href="/user/listUsers">
+                                            <span class="sub-item">Utilisateurs</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="/user/listProfils">
+                                            <span class="sub-item">Profils</span>
+                                        </a>
+                                    </li>
+                                </ul>
                             </div>
                         </li>
 
                         <li class="nav-item">
-                            <a href="/analyse" >
+                            <a href="/achat-general/list">
+                                <i class=" fa fa-solid fa-bars"></i>
+                                <p>Achat géneral</p>
+                            </a>
+                        </li>
+
+                         <li class="nav-item">
+                            <a href="/caisse/list">
+                                <i class="fa fa-solid fa-calculator"></i>
+                                <p>Caisse</p>
+                            </a>
+                        </li>
+
+                          <li class="nav-item">
+                            <a href="/tpe/list">
+                                <i class="fa fa-solid fa-calculator"></i>
+                                <p>TPE</p>
+                            </a>
+                        </li>
+
+
+                        <li class="nav-item">
+                            <a data-bs-toggle="collapse" href="#sidebarAnalyse">
                             <i class="fa fa-circle"></i>
                             <p>Analyse</p>
                             <span class="caret"></span>
                             </a>
-                            
+                            <div class="collapse" id="sidebarAnalyse">
+                            <ul class="nav nav-collapse">
+                                <li>
+                                <a href="/analyse">
+                                    <span class="sub-item">Caisse / Balance</span>
+                                </a>
+                                </li>
+                            </ul>
+                            </div>
                         </li>
                         </ul>
                     </div>
@@ -131,7 +159,7 @@
                     class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom"
                     >
                     <div class="container-fluid">
-                    <nav
+                    {# <nav
                         class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex"
                     >
                         <div class="input-group">
@@ -146,7 +174,7 @@
                             class="form-control"
                         />
                         </div>
-                    </nav>
+                    </nav> #}
 
                     {# <ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
                         <li class="nav-item topbar-icon dropdown hidden-caret">

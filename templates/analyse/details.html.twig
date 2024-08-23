@@ -1,0 +1,202 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    <style>
+        .divTable{
+            width: auto;
+            overflow: auto;
+        }
+        .table>tbody>tr>td, .table>tbody>tr>th {
+            padding: 8px 23px !important;
+        }
+    </style>
+
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="page-inner">
+            <div class="page-header">
+                <h3 class="fw-bold mb-3">Analyse</h3>
+                <ul class="breadcrumbs mb-3">
+                    <li class="nav-home">
+                        <a href="#">
+                            <i class="icon-home"></i>
+                        </a>
+                    </li>
+                    <li class="separator">
+                        <i class="icon-arrow-right"></i>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/analyse">Analyse</a>
+                    </li>
+                    <li class="separator">
+                        <i class="icon-arrow-right"></i>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/analyse/historique">Historique</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Détails analyse </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+
+                                <form class="forms-sample col-md-12" id="form" enctype="multipart/form-data">
+                                    <h3 class='text-primary mt-4'>Description</h3>
+                                    <div class="form-group row">
+                                        <label class="col-sm-2 col-form-label">Titre : <span style="color:red">*</span></label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" id="titre" name="titre" disabled value="{{analyse.titre}}">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group row">
+                                        <label class="col-sm-2 col-form-label">Date début : <span style="color:red">*</span></label>
+                                        <div class="col-sm-4">
+                                            <input type="date" class="form-control" id="date_debut" name="date_debut" disabled  value="{{analyse.dateDebut | date('Y-m-d')}}">
+                                        </div>
+                                        <label class="col-sm-2 col-form-label">Date fin : <span style="color:red">*</span></label>
+                                        <div class="col-sm-4">
+                                            <input type="date" class="form-control" id="date_fin" name="date_fin" disabled value="{{analyse.dateDebut | date('Y-m-d')}}">
+                                        </div>
+                                    </div>
+
+                                    <h3 class='text-primary mt-4'>Fichiers</h3>
+
+                                    <div class="form-group row">
+                                   
+                                    
+                                    <div>
+                                    <div  id='progressBar' style='display:none'>
+                                        <div id="progressTitle">
+                                            <h4 class='text-primary text-center'>Récupération de données ...</h4>
+                                        </div>
+                                        <div class="progress">
+                                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 75%"></div>
+                                        </div>
+                                    </div>
+                                </form>
+
+                                <div id="balance" class="divTable">
+
+                                </div>
+
+                                <div id="caisse" class="mt-5 divTable">
+                                    
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+    $(document).ready(function() {
+        getDetailAnalyse();
+    });
+
+    function getDetailAnalyse(){
+        $('#progressBar').css('display', 'block');
+        const id = {{id}};
+
+        $.ajax({
+            type: "GET",
+            url: "/analyse/getDatils/" + id,
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                console.log(data)
+                if (data.codeStatut == "OK") {
+                    updateTable(data.balance, "#balance", "balance1");
+                    updateTable(data.caisse, "#caisse", "caisse1");
+                    $('#progressBar').css('display', 'none');
+                } else {
+                    $('#progressBar').css('display', 'none');
+                    $(".fadeMe").css("visibility", "hidden");
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erreur',
+                        text: data.message,
+                    });
+                }
+            },
+            error: function(err){
+                $('#progressBar').css('display', 'none');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur',
+                    text: "Une erreur s'est produite ! ",
+                });
+            }
+        });
+    }
+
+    function updateTable(data, selector, tableId) {
+        if ($.fn.DataTable.isDataTable('#' + tableId)) {
+            $('#' + tableId).DataTable().destroy();
+        }
+        console.log(data)
+        var table = '<table id="' + tableId + '" class="display table table-striped table-hover"><thead><tr>';
+
+        // Assuming all objects in the array have the same keys
+        var headers = Object.keys(data[0]);
+        headers.forEach(function(header) {
+            if (!isInHeader(header))
+                table += '<th>' + header + '</th>';
+        });
+        table += '</tr></thead><tbody>';
+
+        data.forEach(function(item) {
+            table += '<tr>';
+            headers.forEach(function(header) {
+                if (!isInHeader(header)) {
+                    table += '<td' + getColorClass(item) + '>' + item[header] + '</td>';
+                }
+            });
+            table += '</tr>';
+        });
+
+        table += '</tbody></table>';
+        $(selector).html(table);
+        callDataTable(tableId);
+    }
+
+    function isInHeader(header) {
+        var headers = ['idAnalyse', 'etatPoids', 'etatPrix', 'id'];
+        return headers.includes(header);
+    }
+
+    function getColorClass(item) {
+        if (item.etatPrix == 1 && item.etatPoids == 1) {
+            return ' style="background-color: #219C90;"';
+        } else if (item.etatPrix == 2 && item.etatPoids == 2) {
+            return ' style="background-color: #E4003A;color:white"';
+        } else if (item.etatPrix == 1 || item.etatPoids == 1) {
+            return ' style="background-color: #FFB200;"';
+        } else {
+            return '';
+        }
+    }
+
+    function callDataTable(tableId) {
+        $('#' + tableId).DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json',
+            },
+        });
+    }
+
+</script>
+{% endblock %}

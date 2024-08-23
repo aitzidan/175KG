@@ -45,6 +45,12 @@ class DetailBalance
     #[ORM\Column(nullable: true)]
     private ?int $code = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?float $ecart_poids = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?float $ecart_prix = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -167,6 +173,29 @@ class DetailBalance
     {
         $this->code = $code;
 
+        return $this;
+    }
+
+    public function getEcartPoids(): ?float
+    {
+        return $this->ecart_poids;
+    }
+
+    public function setEcartPoids(?float $ecart_poids): static
+    {
+        $this->ecart_poids = $ecart_poids !== null ? round($ecart_poids, 2) : null;
+
+        return $this;
+    }
+
+    public function getEcartPrix(): ?float
+    {
+        return $this->ecart_prix;
+    }
+
+    public function setEcartPrix(?float $ecart_prix): static
+    {
+        $this->ecart_prix = $ecart_prix !== null ? round($ecart_prix, 2) : null;
         return $this;
     }
 }

@@ -1,0 +1,157 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Achat General{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="page-inner">
+            <div class="page-header">
+                <h3 class="fw-bold mb-3">Achat General</h3>
+                <ul class="breadcrumbs mb-3">
+                    <li class="nav-home">
+                        <a href="#">
+                            <i class="icon-home"></i>
+                        </a>
+                    </li>
+                    <li class="separator">
+                        <i class="icon-arrow-right"></i>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#">Modifier un achat</a>
+                    </li>
+                    <li class="separator">
+                        <i class="icon-arrow-right"></i>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/achat-general/list">Achat General</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Modifier un achat</div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <form class="forms-sample col-md-12" id="form" enctype="multipart/form-data">
+                                    <div class="form-group row">
+                                        <label class="col-sm-2 col-form-label">Date : <span style="color:red">*</span></label>
+                                        <div class="col-sm-4">
+                                            <input type="date" class="form-control" id="date" name="date" value='{{achatGeneral.date|date('Y-m-d')}}'>
+                                        </div>
+                                       
+                                        <label class="col-sm-2 col-form-label">Catégorie : <span style="color:red">*</span></label>
+                                        <div class="col-sm-4">
+                                            <select class="form-control" id="categorie" name="categorie">
+                                                <option value="">Sélectionner</option>
+                                                {% for categorie in categories %}
+                                                    <option value="{{ categorie.id }}" {% if categorie.id == achatGeneral.categorie.id %}selected{% endif  %}>{{ categorie.categorie }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+
+                                        <label class="col-sm-2 col-form-label">Designation : <span style="color:red">*</span></label>
+                                        <div class="col-sm-4">
+                                            <input type="text" class="form-control" id="designation" name="designation" value='{{achatGeneral.designation}}' >
+                                        </div>
+                                         <label class="col-sm-2 col-form-label">Fournisseur : <span style="color:red">*</span></label>
+                                        <div class="col-sm-4">
+                                            <select class="form-control" id="fournisseur" name="fournisseur">
+                                                <option value="">Sélectionner</option>
+                                                {% for fournisseur in fournisseurs %}
+                                                    <option value="{{ fournisseur.id }}" {% if fournisseur.id == achatGeneral.idFournisseur.id %}selected{% endif  %}>{{ fournisseur.rs }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+
+                                        <label class="col-sm-2 col-form-label">Unité : <span style="color:red">*</span></label>
+                                        <div class="col-sm-4">
+                                            <select class="form-control" id="unite" name="unite">
+                                                <option value="">Sélectionner</option>
+                                                <option value="KG" {% if achatGeneral.unite == 'KG' %}selected{% endif  %}>KG</option>
+                                                <option value="FORFAIT" {% if achatGeneral.unite == 'FORFAIT' %}selected{% endif  %}>FORFAIT</option>
+                                                <option value="UNITE" {% if achatGeneral.unite == 'UNITE' %}selected{% endif  %}>UNITE</option>
+                                            </select>
+                                        </div>
+                                        <label class="col-sm-2 col-form-label">Quantité : <span style="color:red">*</span></label>
+                                        <div class="col-sm-4">
+                                            <input type="number" class="form-control" id="qte" name="qte" onchange='changeMontant()' value='{{achatGeneral.qte}}'>
+                                        </div>
+                                        <label class="col-sm-2 col-form-label">Prix : <span style="color:red">*</span></label>
+                                        <div class="col-sm-4">
+                                            <input type="number" class="form-control" id="prix" name="prix" onchange='changeMontant()' value='{{achatGeneral.prix}}'>
+                                        </div>
+                                        <label class="col-sm-2 col-form-label">Montant : <span style="color:red">*</span></label>
+                                        <div class="col-sm-4">
+                                            <input type="number" class="form-control" id="montant" name="montant" value='{{achatGeneral.montant}}' readonly >
+                                        </div>
+                                    </div>
+                                    <div style='display:flex;justify-content: center;' class='mt-5'>
+                                        <input type="submit" class="btn btn-success btn-lg btn-block waves-effect waves-light" value="Modifier" id="btnImport">
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    document.getElementById('form').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+        $('#btnImport').css('disabled', true);
+
+        var formData = new FormData(this);
+        var id = "{{id}}";
+        $.ajax({
+            type: "POST",
+            url: "/achat-general/ajaxUpdateAchatGeneral/"+id,
+            data: formData,
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                if (data.codeStatut == "OK") {
+                    
+                    window.location = '/achat-general/list';
+                
+                } else {
+                    $('#btnImport').css('display', 'block');
+                    $('#progressBar').css('display', 'none');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erreur',
+                        text: data.message,
+                    });
+                }
+            },
+            error: function(err){
+                $('#btnImport').css('display', 'block');
+                $('#progressBar').css('display', 'none');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur',
+                    text: "Une erreur s'est produite ! ",
+                });
+            }
+        });
+    });
+
+    function changeMontant(){
+        var prix = document.getElementById('prix').value;
+        var qte = document.getElementById('qte').value;
+    
+        if(prix && qte){
+            document.getElementById('montant').value = prix * qte 
+        }
+
+    }
+    
+</script>
+{% endblock %}

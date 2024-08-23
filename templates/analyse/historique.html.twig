@@ -1,0 +1,96 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+    <style>
+        .divTable{
+            width: auto;
+            overflow: auto;
+        }
+        .table>tbody>tr>td, .table>tbody>tr>th {
+            padding: 8px 23px !important;
+        }
+    </style>
+
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="page-inner">
+        <div class="page-header">
+            <h3 class="fw-bold mb-3">Analyse</h3>
+            <ul class="breadcrumbs mb-3">
+                <li class="nav-home">
+                    <a href="#">
+                        <i class="icon-home"></i>
+                    </a>
+                </li>
+                <li class="separator">
+                    <i class="icon-arrow-right"></i>
+                </li>
+                <li class="nav-item">
+                    <a href="/analyse">Analyse</a>
+                </li>
+                <li class="separator">
+                    <i class="icon-arrow-right"></i>
+                </li>
+                <li class="nav-item">
+                    <a href="#">Historique</a>
+                </li>
+            </ul>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Historique analyse</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <table id=""
+                                class="display table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Titre</th>
+                                        <th>Date analyse</th>
+                                        <th>Date début</th>
+                                        <th>Date fin</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                {% for u in analyse %}
+                                    <tr>
+                                        <td>{{u.titre}}</td>
+                                        <td>{{ u.dateCreation | date('Y-m-d H:i') }}</td>
+                                        <td>{{u.dateDebut | date('Y-m-d') }}</td>
+                                        <td>{{u.dateFin | date('Y-m-d') }}</td>
+                                        <td>
+                                            <a href='historique/{{u.id}}/' class="btn btn-primary" > Voir
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}    
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+ $(document).ready(function() {
+            $('.table').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json',
+                },
+            });
+    });
+
+</script>
+{% endblock %}

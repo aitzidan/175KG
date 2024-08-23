@@ -1,0 +1,125 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Caisse{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="page-inner">
+            <div class="page-header">
+                <h3 class="fw-bold mb-3">TPE</h3>
+                <ul class="breadcrumbs mb-3">
+                    <li class="nav-home">
+                        <a href="#">
+                            <i class="icon-home"></i>
+                        </a>
+                    </li>
+                    <li class="separator">
+                        <i class="icon-arrow-right"></i>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#">Ajouter une tpe</a>
+                    </li>
+                    <li class="separator">
+                        <i class="icon-arrow-right"></i>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/tpe/list">TPE</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Ajouter une tpe </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+
+                                <form class="forms-sample col-md-12" id="form" enctype="multipart/form-data">
+                                    <div class="form-group row">
+                                        <label class="col-sm-2 col-form-label">Date : <span style="color:red">*</span></label>
+                                        <div class="col-sm-4">
+                                            <input type="date" class="form-control" id="date" name="date" value='{{tpe.date|date('Y-m-d')}}'>
+                                        </div>
+                                        <label class="col-sm-2 col-form-label">TPE : <span style="color:red">*</span></label>
+                                        <div class="col-sm-4">
+                                            <input type="number" class="form-control" id="tpe_caisse" name="tpe_caisse" value="{{tpe.tpeCaisse}}" onchange='changeEcart()'>
+                                        </div>
+                                        <label class="col-sm-2 col-form-label">TPE NAPS : <span style="color:red">*</span></label>
+                                        <div class="col-sm-4">
+                                            <input type="number"  class="form-control" id="tpe_naps" name="tpe_naps" value="{{tpe.tpeNaps}}" onchange='changeEcart()'>
+                                        </div>
+                                        <label class="col-sm-2 col-form-label">ECART : <span style="color:red">*</span></label>
+                                        <div class="col-sm-4">
+                                            <input type="number" class="form-control" id="ecart" name="ecart" value="{{tpe.ecart}}" readonly>
+                                        </div>
+                                    </div>
+                                    <div style='display:flex;justify-content: center; ' class='mt-5'>
+                                        <input type="submit" class="btn btn-success btn-lg btn-block waves-effect waves-light" value="Modifier" id="btnImport">
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+
+    document.getElementById('form').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+        $('#btnImport').css('disabled', true);
+
+        var formData = new FormData(this);
+        var id = "{{id}}";
+        $.ajax({
+            type: "POST",
+            url: "/tpe/ajaxUpdateTpe/"+id,
+            data: formData,
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                console.log('OK');
+                if (data.codeStatut == "OK") {
+                    window.location = '/tpe/list';
+
+                } else {
+                    $('#btnImport').css('display', 'block');
+                    $('#progressBar').css('display', 'none');
+                    $(".fadeMe").css("visibility", "hidden");
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erreur',
+                        text: data.message,
+                    });
+                }
+            },
+            error: function(err){
+                $('#btnImport').css('display', 'block');
+                $('#progressBar').css('display', 'none');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur',
+                    text: "Une erreur s'est produite ! ",
+                });
+            }
+        });
+    });
+
+    function changeEcart(){
+        var tpe_caisse = document.getElementById('tpe_caisse').value;
+        var tpe_naps = document.getElementById('tpe_naps').value;
+    
+        if(tpe_caisse && tpe_naps){
+            document.getElementById('ecart').value = tpe_naps - tpe_caisse 
+        }
+    }
+
+</script>
+{% endblock %}

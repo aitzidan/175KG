@@ -50,7 +50,7 @@ class UserController extends AbstractController
             $user = $session->get('user');
             $isConnected = $session->get('isConnected');
             if ($isConnected == true) {
-                return $this->redirectToRoute('dashbord');
+                return $this->redirectToRoute('listUsers');
             }
             else{
                 return $this->redirectToRoute('login');
@@ -59,7 +59,7 @@ class UserController extends AbstractController
         }
         else
         {
-            return $this->redirect('page/acceuil');
+            return $this->redirect('/dashbord');
         }
     }
 
@@ -67,14 +67,14 @@ class UserController extends AbstractController
     public function DashbordAction(Request $request, EntityManagerInterface $entityManager)
     {
         $session = new Session();
-        $userId = $session->get('user_id');
-        $user = $entityManager->getRepository(User::class)->find($userId);
         $isConnected = $session->get('isConnected');
-
-        if($isConnected == false){
+       
+        if($isConnected != true){
             return $this->redirectToRoute('login');
         }
         else{
+            $userId = $session->get('user_id');
+            $user = $entityManager->getRepository(User::class)->find($userId);
             return $this->render('Base/index.html.twig',
             array("util"=> $user));
         }
@@ -203,8 +203,6 @@ class UserController extends AbstractController
         ]);
 
     }
-
-   
 
     // UPDATE PROFIL
     #[Route('/user/updateUser/{id}/', name: 'updateUser')]
@@ -372,8 +370,6 @@ class UserController extends AbstractController
             'users' => $users,"util"=> $user
         ]);
     }
-
-
 
 
     // ADD PROFIL

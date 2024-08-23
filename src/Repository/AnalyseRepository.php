@@ -78,7 +78,7 @@ class AnalyseRepository extends ServiceEntityRepository
     }
 
     public function getPoidsCaisse($codeArticle , $id_analyse){
-        $sql="SELECT SUM(qte) FROM `detail_caisse` where code = ".$codeArticle." and id_analyse_id = ".$id_analyse." ";
+        $sql="SELECT SUM(qte) FROM `detail_caisse` where code = '".$codeArticle."' and id_analyse_id = ".$id_analyse." ";
         $stmt = $this->conn->prepare($sql);
         $stmt = $stmt->executeQuery();
         $resulat = $stmt->fetchOne();
@@ -110,4 +110,52 @@ class AnalyseRepository extends ServiceEntityRepository
         $this->em->persist($caisse);
         $this->em->flush();
     }
+
+    public function getDetailsIllicar(DetailCaisse $caisse): void
+    {
+        $array = array();
+        
+    }
+    public function saveAnalyse(Analyse $analyse): void
+    {
+        $this->em->persist($analyse);
+        $this->em->flush();
+    }
+    public function getPoidsCaisseTotal( $id_analyse){
+        $sql="SELECT SUM(qte) FROM `detail_caisse` where id_analyse_id = ".$id_analyse." ";
+        $stmt = $this->conn->prepare($sql);
+        $stmt = $stmt->executeQuery();
+        $resulat = $stmt->fetchOne();
+        return $resulat;
+    }
+
+    public function getPrixCaisseTotal( $id_analyse){
+        $sql="SELECT SUM(prix_v) FROM `detail_caisse` where  id_analyse_id = ".$id_analyse." ";
+        $stmt = $this->conn->prepare($sql);
+        $stmt = $stmt->executeQuery();
+        $resulat = $stmt->fetchOne();
+        return $resulat;
+    }
+
+    public function getPrixBalanceTotal( $id_analyse){
+        $sql="SELECT SUM(montant) FROM `detail_balance` where  id_analyse_id = ".$id_analyse." ";
+        $stmt = $this->conn->prepare($sql);
+        $stmt = $stmt->executeQuery();
+        $resulat = $stmt->fetchOne();
+        return $resulat;
+    }
+
+    public function getPoidsBalanceTotal( $id_analyse){
+        $sql="SELECT SUM(poids) FROM `detail_balance` where  id_analyse_id = ".$id_analyse." ";
+        $stmt = $this->conn->prepare($sql);
+        $stmt = $stmt->executeQuery();
+        $resulat = $stmt->fetchOne();
+        return $resulat;
+    }
+    public function getAllHisto(){
+        $resultList = $this->em->getRepository(Analyse::class)->findBy([],["id"=>"DESC"]);
+        return $resultList;
+    }
+
+
 }

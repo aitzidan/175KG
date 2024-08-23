@@ -10,8 +10,10 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\User;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\KernelInterface;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class BaseService
 {
@@ -50,7 +52,7 @@ class BaseService
         $user = $this->getUser();
         if ($user) {
             return $user->getProfil()->getRoles()->map(function($role) {
-                return $role->getName();
+                return $role->getId();
             })->toArray();
         }
         return null;
@@ -71,7 +73,6 @@ class BaseService
         if (!$this->hasRole($role)) {
             return 'NOT_ROLE';
         }
-
         return 'AUTHORIZED';
     }
 
@@ -142,8 +143,12 @@ class BaseService
                     } else {
                         $spreadsheet = IOFactory::load($fileTmpLoc);
                         $sheet = $spreadsheet->getActiveSheet();
+                        $highestColumn = $sheet->getHighestColumn();
+                        $highestColumnIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestColumn);
+
+                        // Read the header from row 13
                         $data = $sheet->rangeToArray(
-                            'A1:' . $sheet->getHighestColumn() . '1',
+                            'A13:' . $sheet->getHighestColumn() . '13',
                             NULL,
                             TRUE,
                             FALSE
@@ -165,6 +170,7 @@ class BaseService
         }
         return array("response" => $response);
     }
+
 
     public function uploadFileAnalyse(UploadedFile $file, string $uploadDir): array
     {
@@ -205,4 +211,105 @@ class BaseService
         return $response;
     }
 
+    public function uploadFileAnalyseCaisse(UploadedFile $file, string $uploadDir): array
+    {
+        $response = [
+            'status' => 'ERROR',
+            'url' => '',
+            'message' => '',
+        ];
+    
+        $fileError = $file->getError();
+        if ($fileError > 0) {
+            $response['message'] = "File transfer error!";
+            return $response;
+        }
+    
+        $extension = $file->getClientOriginalExtension();
+        $validExtensions = ['csv', 'xls', 'xlsx'];
+    
+        if (!in_array(strtolower($extension), $validExtensions)) {
+            $response['message'] = "Invalid file extension! Please upload a csv, xls, or xlsx file.";
+            return $response;
+        }
+    
+        $originalFilename = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+    
+        // Normalize the filename to remove special characters
+        $normalizedFilename = iconv('UTF-8', 'ASCII//TRANSLIT', $originalFilename);
+        $normalizedFilename = preg_replace('/[^a-zA-Z0-9_-]/', '', $normalizedFilename);
+    
+        $newFilename = sha1(uniqid()) . '.' . $extension;
+    
+        try {
+            $uploadPath = $this->kernel->getProjectDir() . "/public/" . $uploadDir;
+            $file->move($uploadPath, $newFilename);
+    
+            $response['status'] = 'SUCCESS';
+            $response['url'] = $uploadDir . '/' . $newFilename;
+            $response['message'] = "File uploaded successfully!";
+        } catch (FileException $e) {
+            $response['message'] = "File upload error: " . $e->getMessage();
+        }
+    
+        return $response;
+    
+    }
+    
+    function Role($codeFunction){
+        $response=0;
+        $session=new Session();
+        if ($session->get('isConnected') != true || $session->get('user_id')==null){
+            $response=0;
+        }else{
+            if($this->hasRole($codeFunction)){
+                $response=1;
+            }
+            else
+            {
+                $response=2;
+            }
+        }
+        return $response;
+    }
+
+    function RoleJson($codeFunction){
+        $response=0;
+        $session=new Session();
+        if ($session->get('isConnected') != true || $session->get('user_id')==null){
+            $response=0;
+        }else{
+            if($this->hasRole($codeFunction)){
+                $response=1;
+            }
+            else
+            {
+                $response=2;
+            }
+        }
+        if ($response !== 1) {
+            throw new AccessDeniedHttpException('ERROR ACCESS: Vous n\'avez pas le rôle requis.');
+        }
+        return $response;
+    }
+
+    public function formatMonth($month) {
+        $months = [
+            1 => 'Janvier',
+            2 => 'Février',
+            3 => 'Mars',
+            4 => 'Avril',
+            5 => 'Mai',
+            6 => 'Juin',
+            7 => 'Juillet',
+            8 => 'Août',
+            9 => 'Septembre',
+            10 => 'Octobre',
+            11 => 'Novembre',
+            12 => 'Décembre',
+        ];
+    
+        return isset($months[$month]) ? $months[$month] : null;
+    }
+    
 }

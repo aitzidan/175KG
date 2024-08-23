@@ -1,0 +1,332 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+<style>
+    .divTable {
+        width: auto;
+        overflow: auto;
+    }
+    .table>tbody>tr>td, .table>tbody>tr>th {
+        padding: 8px 23px !important;
+    }
+     .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-title {
+        font-size: 1.25rem; /* Adjust as needed */
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="page-inner">
+        <div class="page-header">
+            <h3 class="fw-bold mb-3">Tpe</h3>
+            <ul class="breadcrumbs mb-3">
+                <li class="nav-home">
+                    <a href="#">
+                        <i class="icon-home"></i>
+                    </a>
+                </li>
+                <li class="separator">
+                    <i class="icon-arrow-right"></i>
+                </li>
+                <li class="nav-item">
+                    <a href="/tpe/add">Ajouter une tpe</a>
+                </li>
+                <li class="separator">
+                    <i class="icon-arrow-right"></i>
+                </li>
+                <li class="nav-item">
+                    <a href="#">TPE</a>
+                </li>
+            </ul>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header justify-content-between">
+                        <div class="card-title">TPE</div>
+                        <div>
+                            <a href="/tpe/add" type="button" class="btn btn-info">+ Nouvelle tpe</a>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <form method="POST" action="{{ path('list_caisse') }}">
+                           <div class="form-group row">
+                                <label class="col-sm-2 col-form-label">Type de filtrage:</label>
+                                <div class="col-sm-10 d-flex align-items-center">
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" id="filter_date" name="filter_type" value="date" {% if filter_type == 'date' %}checked{% endif %}>
+                                        <label class="form-check-label" for="filter_date">Filtrer par date</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" id="filter_year" name="filter_type" value="year" {% if filter_type == 'year' %}checked{% endif %}>
+                                        <label class="form-check-label" for="filter_year">Filtrer par année</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="date_filter" class="filter-group">
+                                <div class="form-group row">
+                                    <label class="col-sm-2 col-form-label">Date début :</label>
+                                    <div class="col-sm-3">
+                                        <input type="date" class="form-control" id="date_debut" name="date_debut" value="{{ date_debut }}">
+                                    </div>
+                                    <label class="col-sm-2 col-form-label">Date fin :</label>
+                                    <div class="col-sm-3">
+                                        <input type="date" class="form-control" id="date_fin" name="date_fin" value="{{ date_fin }}">
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <button type="submit" class="btn btn-primary w-100">Filtrer</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="year_filter" class="filter-group" style="display:none;">
+                                <div class="form-group row">
+                                    <label class="col-sm-2 col-form-label">Année :</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control" id="annee" name="annee" onchange="updateMonthOptions()">
+                                            {% for year in list_years %}
+                                                <option value="{{ year }}" {% if year == currentYear %}selected{% endif %}>{{ year }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+                                    <label class="col-sm-2 col-form-label">Mois :</label>
+                                    <div class="col-sm-3">
+                                        <select class="form-control" id="mois" name="mois">
+                                            {# This will be dynamically updated based on the selected year #}
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <button type="submit" class="btn btn-primary w-100">Filtrer</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div class="row">
+                            <div class="col-sm-6 col-md-4">
+                                <div class="card card-stats card-round">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                        <div class="col-icon">
+                                            <div
+                                            class="icon-big text-center icon-primary bubble-shadow-small"
+                                            >
+                                            <i class="fas fa-solid fa-money-bill"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col col-stats ms-3 ms-sm-0">
+                                            <div class="numbers">
+                                                <p class="card-category">TPE CAISSE </p>
+                                                <h4 class="card-title" id='illigalPoidsSup'>{{TPE}}</h4>
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                             <div class="col-sm-6 col-md-4">
+                                <div class="card card-stats card-round">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                        <div class="col-icon">
+                                            <div
+                                            class="icon-big text-center icon-warning bubble-shadow-small"
+                                            >
+                                            <i class="fas fa-solid fa-money-bill"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col col-stats ms-3 ms-sm-0">
+                                            <div class="numbers">
+                                                <p class="card-category">TPE NAPS </p>
+                                                <h4 class="card-title" id='illigalPoidsSup'>{{TPE_NAPS}}</h4>
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6 col-md-4">
+                                <div class="card card-stats card-round">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                        <div class="col-icon">
+                                            <div
+                                            class="icon-big text-center icon-danger bubble-shadow-small"
+                                            >
+                                            <i class="fas fa-solid fa-money-bill"></i>
+                                            </div>
+                                        </div>
+                                        <div class="col col-stats ms-3 ms-sm-0">
+                                            <div class="numbers">
+                                                <p class="card-category">ECART </p>
+                                                <h4 class="card-title" id='illigalPoidsSup'>{{ECART}}</h4>
+                                            </div>
+                                        </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <table class="display table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>TPE CAISSE</th>
+                                        <th>TPE NAPS</th>
+                                        <th>ECART</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for u in tpe %}
+                                    <tr>
+                                        <td>{{ u.date | date('Y-m-d') }}</td>
+                                        <td>{{ u.tpe_caisse }}</td>
+                                        <td>{{ u.tpe_naps }}</td>
+                                        <td><span class='badge badge-danger'>{{ u.ecart }}</span></td>
+                                        <td>
+                                            <a href='/tpe/update/{{u.id}}/' class="btn btn-primary" > Voir
+                                            </a>
+                                            <a class="btn btn-danger" style="color:white" title="Supprimer" onclick='confirmDelete({{u.id}})'>Supprimer
+                                            </a>
+                                        </td>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    $(document).ready(function() {
+        $('.table').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json',
+            },
+        });
+        const filter =  "{{ filter_type }}"
+        console.log(filter)
+        const dateFilter = document.getElementById('date_filter');
+        const yearFilter = document.getElementById('year_filter');
+        if(filter == 'date'){
+            dateFilter.style.display = 'block';
+            yearFilter.style.display = 'none';
+        }else{
+            dateFilter.style.display = 'none';
+            yearFilter.style.display = 'block';
+        }
+    });
+        document.addEventListener('DOMContentLoaded', function () {
+        const filterDateRadio = document.getElementById('filter_date');
+        const filterYearRadio = document.getElementById('filter_year');
+        const dateFilter = document.getElementById('date_filter');
+        const yearFilter = document.getElementById('year_filter');
+
+        filterDateRadio.addEventListener('change', function () {
+            if (filterDateRadio.checked) {
+                dateFilter.style.display = 'block';
+                yearFilter.style.display = 'none';
+            }
+        });
+
+        filterYearRadio.addEventListener('change', function () {
+            if (filterYearRadio.checked) {
+                dateFilter.style.display = 'none';
+                yearFilter.style.display = 'block';
+            }
+        });
+
+
+    });
+
+    function updateMonthOptions() {
+        var year = document.getElementById('annee').value;
+        var moisSelect = document.getElementById('mois');
+        var months = {{ list_all_months|json_encode|raw }};
+        var currentMonth = {{ list_months|json_encode|raw }};
+        
+        var monthsToUse = year == {{ currentYear }} ? currentMonth : months;
+        
+        moisSelect.innerHTML = '';
+        var option = document.createElement('option');
+        option.value = ''
+        option.text = '';
+        moisSelect.appendChild(option);
+        monthsToUse.forEach(function(month) {
+            var option = document.createElement('option');
+            option.value = month.number.toString().padStart(2, '0');
+            option.text = month.name;
+            moisSelect.appendChild(option);
+        });
+    }
+
+    // Initialize the month options on page load based on the current year
+    document.addEventListener('DOMContentLoaded', function() {
+        updateMonthOptions();
+    });
+
+
+    function confirmDelete(id) {
+        Swal.fire({
+            title: "Êtes-vous sûr ?",
+            text: "Si ce profil est actuellement associé à des utilisateurs, ces utilisateurs perdront ce profil",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Supprimer",
+            cancelButtonText: "Annuler",
+        }).then((result) => {
+
+            if (result.isConfirmed) {
+
+                $.ajax({
+                    url: "/tpe/deleteTpe/"+id,
+                    type: "POST",
+                    data: {id: id},
+                    success: function(data) {
+                        if(data.codeStatut == 'OK') {
+                            window.location.reload();
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: data.message,
+                            });
+                        }
+                    },
+                    error: function(xhr, ajaxOptions, thrownError) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: "une erreur s'est produite",
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+
+
+</script>
+{% endblock %}

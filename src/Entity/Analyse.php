@@ -26,6 +26,18 @@ class Analyse
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $date_fin = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?float $prixCaisseInf = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?float $prixCaisseSup = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?float $poidsCaisseInf = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?float $poidsCaisseSup = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -75,6 +87,54 @@ class Analyse
     public function setDateFin(\DateTimeInterface $date_fin): static
     {
         $this->date_fin = $date_fin;
+
+        return $this;
+    }
+
+    public function getPrixCaisseInf(): ?float
+    {
+        return $this->prixCaisseInf;
+    }
+
+    public function setPrixCaisseInf(?float $prixCaisseInf): static
+    {
+        $this->prixCaisseInf = $prixCaisseInf;
+
+        return $this;
+    }
+
+    public function getPrixCaisseSup(): ?float
+    {
+        return $this->prixCaisseSup;
+    }
+
+    public function setPrixCaisseSup(?float $prixCaisseSup): static
+    {
+        $this->prixCaisseSup = $prixCaisseSup;
+
+        return $this;
+    }
+
+    public function getPoidsCaisseInf(): ?float
+    {
+        return $this->poidsCaisseInf;
+    }
+
+    public function setPoidsCaisseInf(?float $poidsCaisseInf): static
+    {
+        $this->poidsCaisseInf = $poidsCaisseInf;
+
+        return $this;
+    }
+
+    public function getPoidsCaisseSup(): ?float
+    {
+        return $this->poidsCaisseSup;
+    }
+
+    public function setPoidsCaisseSup(?float $poidsCaisseSup): static
+    {
+        $this->poidsCaisseSup = $poidsCaisseSup;
 
         return $this;
     }

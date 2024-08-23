@@ -1,0 +1,123 @@
+<page backtop="100px" backbottom="150px">
+    <page_header>
+        <div style="text-align:center;padding-bottom:20px;">
+            <img src="./assets/img/logo.jpeg" alt="" width="100" height="85">
+            {# <img src="./bundles/Frontoffice/images/logo-delivery.jpg" alt="" width="100" height="85"> #}
+        </div>
+        <br/>
+    </page_header>
+
+    <page_footer>
+        <br/><br/>
+        <table class="table" style="width: 100%;table-layout: fixed;" border="0" align="center" >
+            <tr>
+                <td style="width: 100%;">
+                    <div style="border-bottom: 1px solid black;border-top: 1px solid black;text-align: center;font-size: 11px;padding-top:5px;padding-bottom:5px;">
+                        © 175kg de salé
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <div style="text-align:center;font-size:15px;margin-top:5px;">
+            page : [[page_cu]] / [[page_nb]]
+        </div>
+    </page_footer>
+
+     <table style="width: 100%;">
+        <tr>
+            <td style=" width: 100%;">
+                <div style="padding: 10px; border-radius: 5px; text-align:center">
+                    <h3>Analyse balance : {{analyse.titre}}</h3>
+                    <h3>{{analyse.dateDebut | date("Y-m-d")}} - {{analyse.dateFin | date("Y-m-d")}} </h3>
+                </div>
+            </td>
+        </tr>
+    </table>
+    
+
+
+    <br/>
+    <table class="table" style="width: 100%;table-layout: fixed;border-collapse: collapse;border-top: 1px solid #2E2E2E;">
+        <tr style="background:#2E2E2E;color:white;">
+           <th style="width:20%;padding:15px;background-color: #00712D;color:white">Article</th>
+            <th style="width:15%;padding:15px;background-color: #00712D;color:white">Poids</th>
+            <th style="width:15%;padding:5px;background-color: #00712D;color:white">Montant</th>
+            <th style="width:5%;padding:5px;background-color: #CD5C08;color:white">Qte</th>
+            <th style="width:15%;padding:15px;background-color: #CD5C08;color:white">TOTAL_NET</th>
+            <th style="width:10%;padding:15px;background-color: #FFAD60;color:white">ECART</th>
+            <th style="width:10%;padding:15px;background-color: #FFB22C;color:black">ECART_MAD</th>
+        </tr>
+        {% for p in balance %}
+            <tr>
+                <td style="width:20%;padding:10px;">
+                    {{p.Article}}
+                </td>
+                <td style="width:15%;padding:15px;background-color: black;color:white">
+                    {{p.Poids}}
+                </td>
+                <td style="width:15%;padding:15px;">
+                    {{p.Montant}}
+                </td>
+                <td style="width:5%;padding:15px;background-color: black;color:white">
+                    {{p.Qte}}
+                </td>
+                <td style="width:15%;padding:15px;">
+                    {{ p.TOTAL_NET }}
+                </td>
+                <td style="width:15%;padding:15px;background-color: 
+                     {% if p.ECART is defined and p.ECART != 0 %}
+                        #FFAD60
+                    {% else %}
+                        transparent
+                    {% endif %};color:black">
+                    {{ p.ECART }}
+                </td>
+                <td style="width:15%;padding:15px;background-color: 
+                    {% if p.ECART_MAD is defined and p.ECART_MAD != 0 %}
+                        #FFB22C
+                    {% else %}
+                        transparent
+                    {% endif %};color:black">
+                    {{ p.ECART_MAD }}
+                </td>
+
+            </tr>
+        {% endfor %}
+    </table>
+    <br/><br/>
+    <table style="width: 100%;">
+        <tr>
+            <td style="width:60%;">
+            </td>
+            <td style="width:40%;">
+                {# <table style="width:100%;padding-right: 20px;border: 0.5px solid #2E2E2E;background:#ce3232;border-radius:5px;padding:10px;color:white;text-align:right;">
+                    <tr>
+                        <td style="width:50%">Total :</td>
+                        <td style="width:50%">{{ commande.total }} DH</td>
+                    </tr>
+                    <tr>
+                        <td style="width:50%">Livraison :</td>
+                        <td style="width:50%">{{ commande.livraison }} DH</td>
+                    </tr>
+
+                    <tr>
+                        <td style="width:50%">Promo :</td>
+                        <td style="width:50%">                        
+                            {% if commande.promo != 0 %}
+                                {{ commande.promo }} DH
+                            {% else %}
+                                0 DH
+                            {% endif %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td style="width:50%">Total à payer :</td>
+                        <td style="width:50%">{{ commande.total + commande.livraison + commande.promo }} DH</td>
+                    </tr>
+
+                </table> #}
+            </td>
+        </tr>
+    </table>
+
+</page>
