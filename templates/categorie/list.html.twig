@@ -1,0 +1,148 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+<style>
+    .divTable {
+        width: auto;
+        overflow: auto;
+    }
+    .table>tbody>tr>td, .table>tbody>tr>th {
+        padding: 8px 23px !important;
+    }
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-title {
+        font-size: 1.25rem; /* Adjust as needed */
+    }
+
+
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="page-inner">
+        <div class="page-header">
+            <h3 class="fw-bold mb-3">Categorie</h3>
+            <ul class="breadcrumbs mb-3">
+                <li class="nav-home">
+                    <a href="#">
+                        <i class="icon-home"></i>
+                    </a>
+                </li>
+                <li class="separator">
+                    <i class="icon-arrow-right"></i>
+                </li>
+                <li class="nav-item">
+                    <a href="/categorie/add">Ajouter une categorie</a>
+                </li>
+                <li class="separator">
+                    <i class="icon-arrow-right"></i>
+                </li>
+                <li class="nav-item">
+                    <a href="#">Categorie</a>
+                </li>
+            </ul>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header justify-content-between">
+                        <div class="card-title">Categorie</div>
+                        <div>
+                            <a href="/categorie/add" type="button" class="btn btn-info">+ Nouvelle categorie</a>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="row mt-4">
+                            <table class="display table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Categorie</th>
+                                        <th>Date création</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for u in categorie %}
+                                    <tr>
+                                        <td>{{ u.dateCreation | date('Y-m-d') }}</td>
+                                        <td>{{ u.categorie }}</td>
+                                        <td>
+                                            <a href='/categorie/update/{{u.id}}/' class="btn btn-primary" > Voir
+                                            </a>
+                                            <a class="btn btn-danger" style="color:white" title="Supprimer" onclick='confirmDelete({{u.id}})'>Supprimer
+                                            </a>
+                                        </td>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+
+    function confirmDelete(id) {
+        Swal.fire({
+            title: "Êtes-vous sûr ?",
+            text: "Si ce profil est actuellement associé à des utilisateurs, ces utilisateurs perdront ce profil",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Supprimer",
+            cancelButtonText: "Annuler",
+        }).then((result) => {
+
+            if (result.isConfirmed) {
+
+                $.ajax({
+                    url: "/categorie/delete/"+id,
+                    type: "POST",
+                    data: {id: id},
+                    success: function(data) {
+                        if(data.codeStatut == 'OK') {
+                            window.location.reload();
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: data.message,
+                            });
+                        }
+                    },
+                    error: function(xhr, ajaxOptions, thrownError) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: "une erreur s'est produite",
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    $(document).ready(function() {
+        $('.table').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json',
+            },
+        });
+    });
+
+</script>
+{% endblock %}

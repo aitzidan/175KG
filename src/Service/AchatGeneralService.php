@@ -7,6 +7,7 @@ use App\Entity\Categorie;
 use App\Entity\Fournisseur;
 use App\Repository\AchatGeneralRepository;
 use App\Repository\CategorieRepository;
+use App\Repository\DesignationRepository;
 use App\Repository\FournisseurRepository;
 use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
@@ -18,14 +19,16 @@ class AchatGeneralService
     private $fournisseurRepo;
     private $categorieRepo;
     private $conn;
+    private $designationRepo;
 
-    public function __construct(EntityManagerInterface $em , Connection $conn ,  AchatGeneralRepository $achatGeneralRepo, FournisseurRepository  $fournisseurRepo, CategorieRepository  $categorieRepo)
+    public function __construct(EntityManagerInterface $em , Connection $conn ,  AchatGeneralRepository $achatGeneralRepo, FournisseurRepository  $fournisseurRepo, CategorieRepository  $categorieRepo, DesignationRepository  $designationRepo)
     {
         $this->em = $em;
         $this->achatGeneralRepo = $achatGeneralRepo;
         $this->conn = $conn;
         $this->fournisseurRepo = $fournisseurRepo;
         $this->categorieRepo = $categorieRepo;
+        $this->designationRepo = $designationRepo;
         
     }
     public function checkData($data): bool
@@ -52,10 +55,11 @@ class AchatGeneralService
 
         $categorie = $this->categorieRepo->find($data['categorie']);
         $fournisseurs = $this->fournisseurRepo->find($data['fournisseur']);
+        $designation = $this->designationRepo->find($data['designation']);
         
         $achatGeneral->setCategorie($categorie);
         $achatGeneral->setIdFournisseur($fournisseurs);
-        $achatGeneral->setDesignation($data['designation']);
+        $achatGeneral->setIdDesignation($designation);
         $achatGeneral->setUnite($data['unite']);
         $achatGeneral->setQte($data['qte']);
         $achatGeneral->setPrix($data['prix']);
@@ -77,9 +81,11 @@ class AchatGeneralService
 
         $categorie = $this->categorieRepo->find($data['categorie']);
         $fournisseurs = $this->fournisseurRepo->find($data['fournisseur']);
+        $designation = $this->designationRepo->find($data['designation']);
+
         $achatGeneral->setCategorie($categorie);
         $achatGeneral->setIdFournisseur($fournisseurs);
-        $achatGeneral->setDesignation($data['designation']);
+        $achatGeneral->setIdDesignation($designation);
         $achatGeneral->setUnite($data['unite']);
         $achatGeneral->setQte($data['qte']);
         $achatGeneral->setPrix($data['prix']);
@@ -240,6 +246,12 @@ class AchatGeneralService
         $stmt = $stmt->executeQuery();
         $result = $stmt->fetchOne();
         return $result;
+    }
+    public function getDesignation(){
+        return $this->designationRepo->findAll();
+    }
+    public function getOneDesignation($id){
+        return $this->designationRepo->find($id);
     }
 
 

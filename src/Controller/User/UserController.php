@@ -35,7 +35,6 @@ class UserController extends AbstractController
         $this->roleRepository = $roleRepository;
         $this->MessageService = $MessageService;
         $this->BaseService = $BaseService;
-
     }
 
     #[Route('/', name: 'base')]

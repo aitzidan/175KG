@@ -42,9 +42,9 @@
                                             <input type="date" class="form-control" id="date" name="date" value='{{date|date('Y-m-d')}}'>
                                         </div>
                                        
-                                        <label class="col-sm-2 col-form-label">Catégorie : <span style="color:red">*</span></label>
+                                       <label class="col-sm-2 col-form-label">Catégorie : <span style="color:red">*</span></label>
                                         <div class="col-sm-4">
-                                            <select class="form-control" id="categorie" name="categorie">
+                                            <select class="form-control" id="categorie" name="categorie" onChange='getDesignation()'>
                                                 <option value="">Sélectionner</option>
                                                 {% for categorie in categories %}
                                                     <option value="{{ categorie.id }}">{{ categorie.categorie }}</option>
@@ -54,8 +54,12 @@
 
                                         <label class="col-sm-2 col-form-label">Designation : <span style="color:red">*</span></label>
                                         <div class="col-sm-4">
-                                            <input type="text" class="form-control" id="designation" name="designation" >
+                                            <select class="form-control" id="designation" name="designation" >
+                                                <option value="">Sélectionner</option>
+                                                <!-- Options will be dynamically populated by JavaScript -->
+                                            </select>
                                         </div>
+
                                          <label class="col-sm-2 col-form-label">Fournisseur : <span style="color:red">*</span></label>
                                         <div class="col-sm-4">
                                             <select class="form-control" id="fournisseur" name="fournisseur">
@@ -103,6 +107,7 @@
 
 {% block javascripts %}
 <script>
+    var idCategorie ;
     document.getElementById('form').addEventListener('submit', function(event) {
         event.preventDefault(); // Prevent the default form submission
         $('#btnImport').css('disabled', true);
@@ -111,7 +116,7 @@
 
         $.ajax({
             type: "POST",
-            url: "/achat-general/ajaxUpdateAchatGeneral",
+            url: "/achat-general/ajaxAddAchatGeneral",
             data: formData,
             cache: false,
             processData: false,
@@ -150,8 +155,39 @@
         if(prix && qte){
             document.getElementById('montant').value = prix * qte 
         }
-
     }
-    
+
+    function getDesignation(){
+        const id = document.getElementById('categorie').value;
+        $.ajax({
+            type: "GET",
+            url: "/designation/getDesignationByCat/" + id,
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                if(data.codeStatut === "OK") {
+                    const designationDropdown = document.getElementById('designation');
+                    designationDropdown.innerHTML = '<option value="">Sélectionner</option>'; // Clear previous options
+
+                    const designationData = data.data;console.log(designationData)
+                    if(designationData && designationData.length) {
+                        designationData.forEach(designation => {
+                            const option = document.createElement('option');
+                            option.value = designation.id;
+                            option.text = designation.designation;
+                            idCategorie = designation.idCategorie.id
+                            designationDropdown.appendChild(option);
+                        });
+                    }
+                } else {
+                    console.error(data.message);
+                }
+            },
+            error: function(err){
+                console.error("An error occurred:", err);
+            }
+        });
+    }
 </script>
 {% endblock %}

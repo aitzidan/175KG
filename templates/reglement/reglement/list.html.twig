@@ -1,0 +1,147 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+<style>
+    .divTable {
+        width: auto;
+        overflow: auto;
+    }
+    .table>tbody>tr>td, .table>tbody>tr>th {
+        padding: 8px 23px !important;
+    }
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .card-title {
+        font-size: 1.25rem; /* Adjust as needed */
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="page-inner">
+        <div class="page-header">
+            <h3 class="fw-bold mb-3">Cheque</h3>
+            <ul class="breadcrumbs mb-3">
+                <li class="nav-home">
+                    <a href="#">
+                        <i class="icon-home"></i>
+                    </a>
+                </li>
+                <li class="separator">
+                    <i class="icon-arrow-right"></i>
+                </li>
+                <li class="nav-item">
+                    <a href="/cheque/add">Ajouter un cheque</a>
+                </li>
+                <li class="separator">
+                    <i class="icon-arrow-right"></i>
+                </li>
+                <li class="nav-item">
+                    <a href="#">Cheque</a>
+                </li>
+            </ul>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header justify-content-between">
+                        <div class="card-title">Cheque</div>
+                        <div>
+                            <a href="/cheque/add" type="button" class="btn btn-info">+ Nouveau cheque</a>
+                        </div>
+                    </div>
+                    
+                    <div class="card-body">
+                        <div class="row mt-4">
+                            <table class="display table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Numéro</th>
+                                        <th>Date</th>
+                                        <th>Destinataire</th>
+                                        <th>Numéro Facture</th>
+                                        <th>Montant</th>
+                                        <th>Date Encaissement</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in cheque %}
+                                    <tr>
+                                        <td>{{ item.numero }}</td>
+                                        <td>{{ item.date | date('Y-m-d') }}</td>
+                                        <td>{{ item.destinataire.rs  }}</td>
+                                        <td>{{ item.numeroFacture }}</td>
+                                        <td>{{ item.montant | number_format(2, ',', ' ') }} </td>
+                                        <td>{{ item.dateEncaissement ? item.dateEncaissement | date('Y-m-d') : 'N/A' }}</td>
+                                        <td>
+                                            <a href='/cheque/update/{{ item.id }}' class="btn btn-primary">Voir</a>
+                                            <a class="btn btn-danger" style="color:white" title="Supprimer" onclick='confirmDelete({{ item.id }})'>Supprimer</a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    function confirmDelete(id) {
+        Swal.fire({
+            title: "Êtes-vous sûr ?",
+            text: "Êtes-vous sûr de vouloir supprimer ce cheque ?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Supprimer",
+            cancelButtonText: "Annuler",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "/cheque/delete/" + id,
+                    type: "POST",
+                    data: {id: id},
+                    success: function(data) {
+                        if (data.codeStatut == 'OK') {
+                            window.location.reload();
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Erreur',
+                                text: data.message,
+                            });
+                        }
+                    },
+                    error: function() {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Erreur',
+                            text: "Une erreur s'est produite !",
+                        });
+                    }
+                });
+            }
+        });
+    }
+    
+      $(document).ready(function() {
+        $('.table').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json',
+            },
+        });
+    });
+</script>
+{% endblock %}

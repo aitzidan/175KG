@@ -28,10 +28,14 @@ class AchatGeneralController extends AbstractController
     {
         $category = $this->AchatGeneralService->getCategorie();
         $fournisseurs = $this->AchatGeneralService->getFournisseurs();
+
+        $designation = $this->AchatGeneralService->getDesignation();
+
         return $this->render('achat/addAchatGeneral.html.twig', [
             'date' => new \DateTime('now'),
             'categories' => $category,
-            'fournisseurs' => $fournisseurs
+            'fournisseurs' => $fournisseurs,
+            'designation' => $designation
         ]);
     }
 
@@ -72,12 +76,14 @@ class AchatGeneralController extends AbstractController
         $achatGeneral = $this->AchatGeneralService->getAchatGeneralById($id);
         $category = $this->AchatGeneralService->getCategorie();
         $fournisseurs = $this->AchatGeneralService->getFournisseurs();
+        $designation = $this->AchatGeneralService->getDesignation();
 
         return $this->render('achat/updateAchatGeneral.html.twig', [
             'achatGeneral' => $achatGeneral,
             'id' => $id,
             'categories' => $category,
-            'fournisseurs' => $fournisseurs
+            'fournisseurs' => $fournisseurs,
+            'designation' => $designation
         ]);
     }
 
@@ -127,6 +133,7 @@ class AchatGeneralController extends AbstractController
         $respObjects["message"] = $this->MessageService->checkMessage($codeStatut);
         return $this->json($respObjects);
     }
+
     #[Route('/achat-general/list', name: 'list_achat')]
     public function listGeneral(Request $request): Response
     {
@@ -189,6 +196,7 @@ class AchatGeneralController extends AbstractController
             $dataList[$i] = $list[$i];
             $dataList[$i]['categorie_id'] = $this->AchatGeneralService->getOneCategorie($list[$i]['categorie_id'])->getCategorie();
             $dataList[$i]['id_fournisseur_id'] = $this->AchatGeneralService->getOneFournisseurs($list[$i]['id_fournisseur_id'])->getRs();
+            $dataList[$i]['designation'] = $this->AchatGeneralService->getOneDesignation($list[$i]['id_designation_id'])->getDesignation();
         }
         $fournisseurs =  $this->AchatGeneralService->getFournisseurs();
         return $this->render('achat/listAchatGeneral.html.twig', [

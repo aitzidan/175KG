@@ -1,0 +1,142 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Update Cheque{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="page-inner">
+            <div class="page-header">
+                <h3 class="fw-bold mb-3">Cheque</h3>
+                <ul class="breadcrumbs mb-3">
+                    <li class="nav-home">
+                        <a href="#">
+                            <i class="icon-home"></i>
+                        </a>
+                    </li>
+                    <li class="separator">
+                        <i class="icon-arrow-right"></i>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/cheque/list">Liste des Cheques</a>
+                    </li>
+                    <li class="separator">
+                        <i class="icon-arrow-right"></i>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#">Modifier le cheque</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Modifier le cheque</div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <form class="forms-sample col-md-12" id="form" enctype="multipart/form-data">
+                                    <input type="hidden" id="id" name="id" value="{{ cheque.id }}">
+                                    <div class="form-group row">
+                                        <label class="col-sm-2 col-form-label">Numéro : <span style="color:red">*</span></label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" id="numero" name="numero" value="{{ cheque.numero }}">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-sm-2 col-form-label">Date : <span style="color:red">*</span></label>
+                                        <div class="col-sm-10">
+                                            <input type="date" class="form-control" id="date" name="date" value="{{ cheque.date | date('Y-m-d') }}">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-sm-2 col-form-label">Destinataire : <span style="color:red">*</span></label>
+                                        <div class="col-sm-10">
+                                        <select class="form-control" id="destinataire" name="destinataire">
+                                                <option value="">Sélectionner</option>
+                                                {% for item in listFournisseur %}
+                                                    <option value="{{ item.id }}"  {% if item.id == cheque.destinataire.id %}selected{% endif  %}>{{ item.rs }} </option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-sm-2 col-form-label">Numéro Facture : <span style="color:red">*</span></label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" id="numeroFacture" name="numeroFacture" value="{{ cheque.numeroFacture }}">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-sm-2 col-form-label">Détails : <span style="color:red">*</span></label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" id="details" name="details" value="{{ cheque.details }}">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-sm-2 col-form-label">Montant : <span style="color:red">*</span></label>
+                                        <div class="col-sm-10">
+                                            <input type="number" step="0.01" class="form-control" id="montant" name="montant" value="{{ cheque.montant }}">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-sm-2 col-form-label">Date Encaissement : </label>
+                                        <div class="col-sm-10">
+                                            <input type="date" class="form-control" id="date_encaissement" name="date_encaissement" value="{{ cheque.dateEncaissement ? cheque.dateEncaissement | date('Y-m-d') : '' }}">
+                                        </div>
+                                    </div>
+                                    <div style='display:flex;justify-content: center;' class='mt-5'>
+                                        <input type="submit" class="btn btn-success btn-lg btn-block waves-effect waves-light" value="Modifier" id="btnUpdate">
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    document.getElementById('form').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+        $('#btnUpdate').css('disabled', true);
+
+        var formData = new FormData(this);
+
+        const id = "{{id}}"
+        console.log(id)
+
+        $.ajax({
+            type: "POST",
+            url: "/cheque/ajaxUpdateCheque/"+id,
+            data: formData,
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                if (data.codeStatut == "OK") {
+                    window.location = '/cheque/list';
+                } else {
+                    $('#btnUpdate').css('display', 'block');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erreur',
+                        text: data.message,
+                    });
+                }
+            },
+            error: function() {
+                $('#btnUpdate').css('display', 'block');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur',
+                    text: "Une erreur s'est produite !",
+                });
+            }
+        });
+    });
+
+</script>
+{% endblock %}

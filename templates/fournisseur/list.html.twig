@@ -1,0 +1,143 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+<style>
+    .divTable {
+        width: auto;
+        overflow: auto;
+    }
+    .table>tbody>tr>td, .table>tbody>tr>th {
+        padding: 8px 23px !important;
+    }
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-title {
+        font-size: 1.25rem; /* Adjust as needed */
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="page-inner">
+        <div class="page-header">
+            <h3 class="fw-bold mb-3">Fournisseurs</h3>
+            <ul class="breadcrumbs mb-3">
+                <li class="nav-home">
+                    <a href="#">
+                        <i class="icon-home"></i>
+                    </a>
+                </li>
+                <li class="separator">
+                    <i class="icon-arrow-right"></i>
+                </li>
+                <li class="nav-item">
+                    <a href="/fournisseur/add">Ajouter un fournisseur</a>
+                </li>
+                <li class="separator">
+                    <i class="icon-arrow-right"></i>
+                </li>
+                <li class="nav-item">
+                    <a href="#">Fournisseurs</a>
+                </li>
+            </ul>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header justify-content-between">
+                        <div class="card-title">Fournisseurs</div>
+                        <div>
+                            <a href="/fournisseur/add" type="button" class="btn btn-info">+ Nouveau fournisseur</a>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="row mt-4">
+                            <table class="display table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Raison Sociale</th>
+                                        <th>Téléphone</th>
+                                        <th>Email</th>
+                                        <th>Adresse</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for u in fournisseur %}
+                                    <tr>
+                                        <td>{{ u.rs }}</td>
+                                        <td>{{ u.telephone }}</td>
+                                        <td>{{ u.email }}</td>
+                                        <td>{{ u.adresse }}</td>
+                                        <td>
+                                            <a href="/fournisseur/update/{{ u.id }}" class="btn btn-info">Modifier</a>
+                                            <button class="btn btn-danger" onclick="deleteFournisseur({{ u.id }})">Supprimer</button>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    $(document).ready(function() {
+        $('.table').DataTable({
+            "order": [],
+            language: {
+                url: 'French.json'
+            }
+        });
+    });
+
+    function deleteFournisseur(id) {
+        Swal.fire({
+            title: "Confirmation",
+            text: "Êtes-vous sûr de vouloir supprimer ?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Oui, supprimer!",
+            cancelButtonText: "Annuler",
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    type: "DELETE",
+                    url: "/fournisseur/ajaxDeleteFournisseur/" + id,
+                    success: function(data) {
+                        if (data.codeStatut == "OK") {
+                            location.reload();
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Erreur',
+                                text: data.message,
+                            });
+                        }
+                    },
+                    error: function(err){
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Erreur',
+                            text: "Une erreur s'est produite ! ",
+                        });
+                    }
+                });
+            }
+        });
+    }
+</script>
+{% endblock %}

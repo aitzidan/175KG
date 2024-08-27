@@ -21,9 +21,6 @@ class AchatGeneral
     #[ORM\JoinColumn(nullable: false)]
     private ?Categorie $categorie = null;
 
-    #[ORM\Column(length: 255)]
-    private ?string $designation = null;
-
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?Fournisseur $id_fournisseur = null;
@@ -39,6 +36,10 @@ class AchatGeneral
 
     #[ORM\Column(nullable: true)]
     private ?float $montant = null;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Designation $idDesignation = null;
 
     public function getId(): ?int
     {
@@ -65,18 +66,6 @@ class AchatGeneral
     public function setCategorie(?categorie $categorie): static
     {
         $this->categorie = $categorie;
-
-        return $this;
-    }
-
-    public function getDesignation(): ?string
-    {
-        return $this->designation;
-    }
-
-    public function setDesignation(string $designation): static
-    {
-        $this->designation = $designation;
 
         return $this;
     }
@@ -137,6 +126,18 @@ class AchatGeneral
     public function setMontant(?float $montant): static
     {
         $this->montant = $montant;
+
+        return $this;
+    }
+
+    public function getIdDesignation(): ?Designation
+    {
+        return $this->idDesignation;
+    }
+
+    public function setIdDesignation(?Designation $idDesignation): static
+    {
+        $this->idDesignation = $idDesignation;
 
         return $this;
     }

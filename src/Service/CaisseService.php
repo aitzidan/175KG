@@ -14,21 +14,29 @@ class CaisseService
     private $em;
     private $caisseRepo;
     private $conn;
-
-    public function __construct(EntityManagerInterface $em , Connection $conn ,  CaisseMagasinRepository $caisseRepo )
+    private $CaisseParamService;
+    public function __construct(EntityManagerInterface $em , Connection $conn ,  CaisseMagasinRepository $caisseRepo , CaisseParamService $CaisseParamService)
     {
         $this->em = $em;
         $this->caisseRepo = $caisseRepo;
         $this->conn = $conn;
+        $this->CaisseParamService = $CaisseParamService;
     }
 
     public function checkData($data): bool
     {
-        // Check if all fields are present and not empty
-        foreach (['date', 'tpe', 'espece', 'amount', 'espece_final'] as $field) {
+        // Check if all required fields are set
+        foreach (['date', 'tpe', 'espece', 'amount', 'espece_final',  'caisse','tpe_naps','ecart'] as $field) {
+            if (!isset($data[$field])) {
+                return false;
+            }
+            
+        }
+        foreach (['caisse'] as $field) {
             if (empty($data[$field])) {
                 return false;
             }
+            
         }
 
         // Check if tpe, espece, amount, and espece_final are numeric
@@ -39,10 +47,13 @@ class CaisseService
 
         return true;
     }
+
     public function addCaisse($data): CaisseMagasin
     {
         $caisse = new CaisseMagasin();
         $caisse->setDateCreation(new \DateTime('now'));
+
+        $caisseParam = $this->CaisseParamService->getCaisse($data['caisse']);
 
         // Set data to the CaisseMagasin entity
         $caisse->setTpe($data['tpe']);
@@ -50,6 +61,9 @@ class CaisseService
         $caisse->setAmount($data['amount']);
         $caisse->setEspeceFinal($data['espece_final']);
         $caisse->setDate(new \DateTime($data['date']));
+        $caisse->setTpeNaps($data['tpe_naps']);
+        $caisse->setEcart($data['ecart']);
+        $caisse->setIdCaisse($caisseParam);
     
         $this->em->persist($caisse);
     
@@ -66,6 +80,8 @@ class CaisseService
             $caisse = new CaisseMagasin();
             $caisse->setDateCreation(new \DateTime('now'));
         }
+
+        $caisseParam = $this->CaisseParamService->getCaisse($data['caisse']);
     
         // Set data to the CaisseMagasin entity
         $caisse->setTpe($data['tpe']);
@@ -73,6 +89,9 @@ class CaisseService
         $caisse->setAmount($data['amount']);
         $caisse->setEspeceFinal($data['espece_final']);
         $caisse->setDate(new \DateTime($data['date']));
+        $caisse->setTpeNaps($data['tpe_naps']);
+        $caisse->setEcart($data['ecart']);
+        $caisse->setIdCaisse($caisseParam);
     
         // Persist and flush only if it's a new entity
         if ($this->em->getRepository(CaisseMagasin::class)->find($caisse->getId()) === null) {
@@ -201,6 +220,45 @@ class CaisseService
         return $resulat;
     }
     
+    public function getEcart($filterType, $dateDebut, $dateFin, $annee, $mois)
+    {
+        $sql = 'SELECT SUM(c.ecart) FROM caisse_magasin c';
+    
+        // Filter by date range
+        if ($filterType === 'date') {
+            $dateDebut = $dateDebut . " 00:00:00";
+            $dateFin = $dateFin . " 23:59:59";
+            $sql .= ' WHERE c.date BETWEEN :dateDebut AND :dateFin';
+        }
+    
+        // Filter by year and optionally month
+        if ($filterType === 'year') {
+            $sql .= ' WHERE YEAR(c.date) = :annee';
+            if ($mois) {
+                $sql .= ' AND MONTH(c.date) = :mois';
+            }
+        }
+    
+        $stmt = $this->conn->prepare($sql);
+    
+        // Bind parameters
+        if ($filterType === 'date') {
+            $stmt->bindValue('dateDebut', $dateDebut);
+            $stmt->bindValue('dateFin', $dateFin);
+        }
+    
+        if ($filterType === 'year') {
+            $stmt->bindValue('annee', $annee);
+            if ($mois) {
+                $stmt->bindValue('mois', $mois);
+            }
+        }
+    
+        $stmt = $stmt->executeQuery();
+        $resulat = $stmt->fetchOne();
+        return $resulat;
+    }
+    
 
     public function getDataByFilter2( $dateDebut, $dateFin)
     {
@@ -256,6 +314,22 @@ class CaisseService
         return $resulat;
     }
 
+    public function getEcart2($dateDebut, $dateFin)
+    {
+        $sql = 'SELECT SUM(c.ecart) FROM caisse_magasin c';
+        // Filter by date range
+        $dateDebut = $dateDebut . " 00:00:00";
+        $dateFin = $dateFin . " 23:59:59";
+        $sql .= ' WHERE c.date BETWEEN :dateDebut AND :dateFin';
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindValue('dateDebut', $dateDebut);
+        $stmt->bindValue('dateFin', $dateFin);
+    
+        $stmt = $stmt->executeQuery();
+        $resulat = $stmt->fetchOne();
+        return $resulat;
+    }
     public function getCaisse($id){
         return $this->caisseRepo->find($id);
     }

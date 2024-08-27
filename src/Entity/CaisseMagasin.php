@@ -32,6 +32,17 @@ class CaisseMagasin
     #[ORM\Column]
     private ?float $espece_final = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Caisse $idCaisse = null;
+
+    #[ORM\Column]
+    private ?float $tpe_naps = null;
+
+    #[ORM\Column]
+    private ?float $ecart = null;
+
+
     public function getId(): ?int
     {
         return $this->id;
@@ -108,4 +119,40 @@ class CaisseMagasin
 
         return $this;
     }
+
+    public function getIdCaisse(): ?Caisse
+    {
+        return $this->idCaisse;
+    }
+
+    public function setIdCaisse(?Caisse $idCaisse): static
+    {
+        $this->idCaisse = $idCaisse;
+
+        return $this;
+    }
+    public function getTpeNaps(): ?float
+    {
+        return $this->tpe_naps;
+    }
+
+    public function setTpeNaps(float $tpe_naps): static
+    {
+        $this->tpe_naps = $tpe_naps;
+
+        return $this;
+    }
+
+    public function getEcart(): ?float
+    {
+        return $this->ecart;
+    }
+
+    public function setEcart(float $ecart): static
+    {
+        $this->ecart = $ecart;
+
+        return $this;
+    }
+
 }

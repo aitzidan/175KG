@@ -3,6 +3,7 @@
 namespace App\Controller\Caisse;
 
 use App\Service\BaseService;
+use App\Service\CaisseParamService;
 use App\Service\CaisseService;
 use App\Service\MessageService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -15,11 +16,13 @@ class caisseController extends AbstractController
     private MessageService $MessageService;
     private BaseService $BaseService;
     private CaisseService $CaisseService;
+    private CaisseParamService $CaisseParamService;
 
-    public function __construct(MessageService $MessageService,BaseService $BaseService , CaisseService $CaisseService)
+    public function __construct(MessageService $MessageService,BaseService $BaseService , CaisseService $CaisseService,CaisseParamService $CaisseParamService)
     {
         $this->MessageService = $MessageService;
         $this->BaseService = $BaseService;
+        $this->CaisseParamService = $CaisseParamService;
         $this->CaisseService = $CaisseService;
     }
 
@@ -36,7 +39,7 @@ class caisseController extends AbstractController
         $filterType = 'date';
         $TPE = 0;
         $Espece = 0;
-    
+        $ECART = 0;
         // Get the current year and month
         $currentYear = (int)$currentDate->format('Y');
         $currentMonth = (int)$currentDate->format('n'); // Mois en tant que nombre (1-12)
@@ -49,6 +52,7 @@ class caisseController extends AbstractController
                 'name' =>  $this->BaseService->formatMonth($month)// Nom complet du mois
             ];
         }
+
         $listAllMonths = [];
         for ($month = 1; $month <=12 ; $month++) {
             $listAllMonths[] = [
@@ -56,6 +60,7 @@ class caisseController extends AbstractController
                 'name' =>  $this->BaseService->formatMonth($month)// Nom complet du mois
             ];
         }
+
         $listYears = [];
         for ($year = 2020; $year <= $currentYear; $year++) {
             $listYears[] = $year;
@@ -72,10 +77,13 @@ class caisseController extends AbstractController
             $list = $this->CaisseService->getDataByFilter($filterType , $dateDebut , $dateFin , $annee , $mois);
             $Espece = $this->CaisseService->getTheEspece($filterType , $dateDebut , $dateFin , $annee , $mois);
             $TPE = $this->CaisseService->getTpe($filterType , $dateDebut , $dateFin , $annee , $mois);
+            $ECART = $this->CaisseService->getEcart($filterType , $dateDebut , $dateFin , $annee , $mois);
+
         }else{
             $list = $this->CaisseService->getDataByFilter2($date_debut , $date_fin);
             $Espece = $this->CaisseService->getTheEspece2($date_debut , $date_fin) ?? 0;
             $TPE = $this->CaisseService->getTpe2($date_debut , $date_fin) ?? 0;
+            $ECART = $this->CaisseService->getEcart2($date_debut , $date_fin) ?? 0;
         }
     
         return $this->render('caisse/listCaisse.html.twig', [
@@ -89,15 +97,18 @@ class caisseController extends AbstractController
             'currentYear' => $currentYear ,
             'filter_type'=>$filterType,
             'TPE'=>$TPE,
-            'Espece'=>$Espece
+            'Espece'=>$Espece,
+            'ECART'=>$ECART,
         ]);
     }
 
     #[Route('/caisse/add', name: 'add_caisse')]
     public function addCaisse(): Response
     {
+        $listParam = $this->CaisseParamService->getListCaisse();
         return $this->render('caisse/addCaisse.html.twig', [
-           'date'=>new \DateTime('now')
+           'date'=>new \DateTime('now'),
+           'listParam'=>$listParam
         ]);
     }
 
@@ -112,7 +123,10 @@ class caisseController extends AbstractController
             'tpe' => $request->get('tpe'),
             'espece' => $request->get('espece'),
             'amount' => $request->get('amount'),
-            'espece_final' => $request->get('espece_final')
+            'espece_final' => $request->get('espece_final'),
+            'tpe_naps' => $request->get('tpe_naps'),
+            'ecart' => $request->get('ecart'),
+            'caisse' => $request->get('caisse'),
         ];
         $checkData = $this->CaisseService->checkData($data);
 
@@ -133,10 +147,12 @@ class caisseController extends AbstractController
     public function updateCaisse($id): Response
     {
         $caisse = $this->CaisseService->getCaisse($id);
+        $listParam = $this->CaisseParamService->getListCaisse();
 
         return $this->render('/caisse/updateCaisse.html.twig', [
            'caisse'=>$caisse,
-           'id'=>$id
+           'id'=>$id,
+           'listParam'=>$listParam
         ]);
     }
     
@@ -152,7 +168,10 @@ class caisseController extends AbstractController
             'tpe' => $request->get('tpe'),
             'espece' => $request->get('espece'),
             'amount' => $request->get('amount'),
-            'espece_final' => $request->get('espece_final')
+            'espece_final' => $request->get('espece_final'),
+            'tpe_naps' => $request->get('tpe_naps'),
+            'ecart' => $request->get('ecart'),
+            'caisse' => $request->get('caisse'),
         ];
 
         $checkData = $this->CaisseService->checkData($data);

@@ -1,0 +1,97 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Entité{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="page-inner">
+            <div class="page-header">
+                <h3 class="fw-bold mb-3">Entité</h3>
+                <ul class="breadcrumbs mb-3">
+                    <li class="nav-home">
+                        <a href="#">
+                            <i class="icon-home"></i>
+                        </a>
+                    </li>
+                    <li class="separator">
+                        <i class="icon-arrow-right"></i>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#">Modifier une entité</a>
+                    </li>
+                    <li class="separator">
+                        <i class="icon-arrow-right"></i>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/entity/list">Entité</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Modifier une entité</div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <form class="forms-sample col-md-12" id="form" enctype="multipart/form-data">
+                                    <div class="form-group row">
+                                        <label class="col-sm-2 col-form-label">Entité : <span style="color:red">*</span></label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" id="entity" name="entity" value='{{entity.entity}}'>
+                                        </div>
+                                    </div>
+                                    <div style='display:flex;justify-content: center;' class='mt-5'>
+                                        <input type="submit" class="btn btn-success btn-lg btn-block waves-effect waves-light" value="Modifier" id="btnImport">
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    document.getElementById('form').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+        $('#btnImport').css('disabled', true);
+
+        var id = "{{id}}"
+        var formData = new FormData(this);
+
+        $.ajax({
+            type: "POST",
+            url: "/entity/ajaxUpdateEntity/"+id,
+            data: formData,
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                if (data.codeStatut == "OK") {
+                    window.location = '/entity/list';
+                } else {
+                    $('#btnImport').css('display', 'block');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erreur',
+                        text: data.message,
+                    });
+                }
+            },
+            error: function(err){
+                $('#btnImport').css('display', 'block');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur',
+                    text: "Une erreur s'est produite ! ",
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,138 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Fournisseur{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="page-inner">
+            <div class="page-header">
+                <h3 class="fw-bold mb-3">Fournisseur</h3>
+                <ul class="breadcrumbs mb-3">
+                    <li class="nav-home">
+                        <a href="#">
+                            <i class="icon-home"></i>
+                        </a>
+                    </li>
+                    <li class="separator">
+                        <i class="icon-arrow-right"></i>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#">Ajouter un fournisseur</a>
+                    </li>
+                    <li class="separator">
+                        <i class="icon-arrow-right"></i>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/fournisseur/list">Fournisseur</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Ajouter un fournisseur</div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <form class="forms-sample col-md-12" id="form" enctype="multipart/form-data">
+                                    <div class="form-group row">
+                                        <label class="col-sm-2 col-form-label">RS : <span style="color:red">*</span></label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" id="rs" name="rs">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-sm-2 col-form-label">Téléphone : <span style="color:red">*</span></label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" id="telephone" name="telephone">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-sm-2 col-form-label">Email : <span style="color:red">*</span></label>
+                                        <div class="col-sm-10">
+                                            <input type="email" class="form-control" id="email" name="email">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-sm-2 col-form-label">Adresse : <span style="color:red">*</span></label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" id="adresse" name="adresse">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-sm-2 col-form-label">Nom : <span style="color:red">*</span></label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" id="nom" name="nom">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-sm-2 col-form-label">Prénom : <span style="color:red">*</span></label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" id="prenom" name="prenom">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-sm-2 col-form-label">ICE : <span style="color:red">*</span></label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" id="ice" name="ice">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-sm-2 col-form-label">RC : <span style="color:red">*</span></label>
+                                        <div class="col-sm-10">
+                                            <input type="text" class="form-control" id="rc" name="rc">
+                                        </div>
+                                    </div>
+                                    <div style='display:flex;justify-content: center;' class='mt-5'>
+                                        <input type="submit" class="btn btn-success btn-lg btn-block waves-effect waves-light" value="Ajouter" id="btnImport">
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    document.getElementById('form').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+        $('#btnImport').css('disabled', true);
+
+        var formData = new FormData(this);
+
+        $.ajax({
+            type: "POST",
+            url: "/fournisseur/ajaxAddFournisseur",
+            data: formData,
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                if (data.codeStatut == "OK") {
+                    window.location = '/fournisseur/list';
+                } else {
+                    $('#btnImport').css('display', 'block');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erreur',
+                        text: data.message,
+                    });
+                }
+            },
+            error: function(err){
+                $('#btnImport').css('display', 'block');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur',
+                    text: "Une erreur s'est produite ! ",
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,109 @@
+<page backtop="100px" backbottom="150px">
+    <page_header>
+        <div style="text-align:left;padding-bottom:20px;">
+            <img src="./assets/img/logo.jpeg" alt="" width="100" height="85">
+        </div>
+        <br/>
+    </page_header>
+
+    <page_footer>
+        <!-- Signature Section -->
+        <table class="table" style="width: 100%;table-layout: fixed;" border="0" align="center">
+            <tr>
+                <td style="width: 33%; text-align: center; padding: 10px;">
+                    <strong>Signature 1</strong>
+                </td>
+                <td style="width: 33%; text-align: center; padding: 10px;">
+                    <strong>Signature 2</strong>
+                </td>
+                <td style="width: 33%; text-align: center; padding: 10px;">
+                    <strong>Signature Réception</strong>
+                </td>
+            </tr>
+        </table>
+
+        <!-- Footer Text and Page Number -->
+        <table class="table" style="width: 100%;table-layout: fixed;margin-top:70px" border="0" align="center">
+            <tr>
+                <td style="width: 100%;">
+                    <div style="border-bottom: 1px solid black;border-top: 1px solid black;text-align: center;font-size: 11px;padding-top:5px;padding-bottom:5px;">
+                        © 175kg de salé
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <div style="text-align:center;font-size:15px;margin-top:5px;">
+            page : [[page_cu]] / [[page_nb]]
+        </div>
+    </page_footer>
+
+    <!-- Header Section -->
+    <table style="width: 100%; margin-bottom: 20px;">
+        <tr>
+            <td style="width: 50%;">
+                <div>
+                    <h1 style="font-size: 28px; font-weight: bold;    font-style: italic;"> BL <div style="width:50px;height:50px;border:1px solid black;"></div></h1>
+                </div>
+            </td>
+            <td style="width: 50%;">
+                <div style="border: 1px solid #000; border-radius: 10px; padding: 20px; text-align: center;">
+                    <h3>{{bl.entity.entity}}</h3>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div style="font-size: 18px; font-weight: bold; margin-top: 20px;">DATE : {{bl.date| date('d-m-Y')}}</div>
+                <div style="font-size: 18px; font-weight: bold; margin-top: 20px;">Numéro :   {{bl.code}}</div>
+            </td>
+        </tr>
+    </table>
+
+    <!-- Table Section -->
+    <table class="table" style="width: 100%;table-layout: fixed;border-collapse: collapse;border: 1px solid #000;">
+        <thead>
+            <tr style="background-color: #D3D3D3; text-align: center;">
+                <th style="width: 25%; padding: 10px;">Code</th>
+                <th style="width: 25%; padding: 10px;">Designation</th>
+                <th style="width: 25%; padding: 10px;">Unité</th>
+                <th style="width: 25%; padding: 10px;">Qté</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in listBl %}
+            <tr>
+                <td style="text-align: center; padding: 10px; border: 1px solid #000;">
+                    {{item.idProduit.code}}
+                </td>
+                <td style="text-align: left; padding: 10px; border: 1px solid #000;">
+                    {{ item.idProduit.produit }}
+                </td>
+                <td style="text-align: center; padding: 10px; border: 1px solid #000;">
+                    {{ item.idProduit.unite }}
+                </td>
+                <td style="text-align: center; padding: 10px; border: 1px solid #000;">
+                    {{ item.qte }}
+                </td>
+            </tr>
+            {% endfor %}
+            
+        </tbody>
+    </table>
+
+    <!-- Total Section -->
+    <table class="table" style="width: 100%;margin-top: 10px;table-layout: fixed;border-collapse: collapse;border: 1px solid #000;">
+        <tbody>
+            <tr style="width:100%">
+                <td style="text-align: left; padding: 10px; border-right: 1px solid #000;width:50%">
+                </td>
+                <td style="text-align: left; padding: 10px; border: 1px solid #000;width:25%">
+                    Total
+                </td>
+                <td style="text-align: center; padding: 10px; border: 1px solid #000; width:25%"> {{totalBl}}
+                </td>
+            </tr>
+            
+        </tbody>
+    </table>
+    
+</page>

@@ -1,0 +1,300 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Produit{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <div class="page-inner">
+            <div class="page-header">
+                <h3 class="fw-bold mb-3">Éxpédition</h3>
+                <ul class="breadcrumbs mb-3">
+                    <li class="nav-home">
+                        <a href="#">
+                            <i class="icon-home"></i>
+                        </a>
+                    </li>
+                    <li class="separator">
+                        <i class="icon-arrow-right"></i>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#">Créer une éxpédition</a>
+                    </li>
+                    <li class="separator">
+                        <i class="icon-arrow-right"></i>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/bl/list">Éxpédition</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Créer une éxpédition</div>
+                        </div>
+                        <div class="card-body">
+                            <form class="forms-sample col-md-12" id="form" enctype="multipart/form-data">
+                                <h3 class='text-primary mt-4'>Description :</h3>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 col-form-label">Numéro : <span style="color:red">*</span></label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="code" name="code" value='{{numero}}'>
+                                    </div>
+                                    <label class="col-sm-2 col-form-label">Date : <span style="color:red">*</span></label>
+                                    <div class="col-sm-10">
+                                        <input type="date" class="form-control" id="date" name="date">
+                                    </div>
+                                    <label class="col-sm-2 col-form-label">Entité : <span style="color:red">*</span></label>
+                                    <div class="col-sm-10">
+                                        <select class="form-control" id="entity" name="entity">
+                                            <option value="">Sélectionner</option>
+                                            {% for e in listEntity %}
+                                                <option value="{{ e.id }}">{{ e.entity }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Table for produit details -->
+                                <div class='w-100 d-flex justify-content-between'>
+                                    <h3 class='text-primary mt-4'>Détails bon livraison :</h3>
+                                    <button type="button" class="btn btn-primary" id="addRow">Ajouter une ligne</button>
+                                </div>
+
+                                <div class="form-group row mt-4">
+                                    <div class="col-sm-12">
+                                        <table class="display table table-striped table-hover" id="produitTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Code</th>
+                                                    <th>Désignation</th>
+                                                    <th>Quantité</th>
+                                                    <th>Unité</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <!-- Rows will be dynamically added here -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div class="form-group " style="display:flex;justify-content: center;">
+                                    <input type="submit" class="btn btn-success" value="Créer" id="btnImport">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    $(document).ready(function() {
+    getListProduit();
+
+    $('#addRow').on('click', function() {
+        addRow();
+    });
+
+    function getListProduit() {
+        $.ajax({
+            type: "GET",
+            url: "/produit/listAjaxProduit",
+            cache: false,
+            success: function(data) {
+                if (data.codeStatut === "OK") {
+                    window.produits = data.data; // Save products data globally
+                } else {
+                    console.error(data.message);
+                }
+            },
+            error: function(err){
+                console.error("An error occurred:", err);
+            }
+        });
+    }
+
+   function addRow() {
+        const tbody = $('#produitTable tbody');
+
+        // Check if all rows are filled
+        let allFilled = true;
+        tbody.find('tr').each(function() {
+            const code = $(this).find('.product-code').val();
+            const designation = $(this).find('.product-designation').val();
+            const qte = $(this).find('.qte').val();
+
+            if (!code || !designation || !qte) {
+                allFilled = false;
+                return false; // Exit loop if any field is empty
+            }
+        });
+
+        if (!allFilled) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Attention',
+                text: 'Veuillez remplir tous les champs avant d\'ajouter une nouvelle ligne.',
+            });
+            return; // Prevent adding a new row
+        }
+
+        // Continue with adding a new row
+        const row = $('<tr>');
+        row.append(`
+            <td>
+                <select class="form-control product-code select2" name="idProduit[]">
+                    <option value="">Sélectionner</option>
+                    ${window.produits.map(p => `<option value="${p.id}" data-unite="${p.unite}" data-designation="${p.designation}">${p.code}</option>`).join('')}
+                </select>
+            </td>
+            <td>
+                <select class="form-control product-designation select2" name="designation[]">
+                    <option value="">Sélectionner</option> 
+                    ${window.produits.map(p => `<option value="${p.id}" data-unite="${p.unite}" data-code="${p.code}">${p.produit}</option>`).join('')}
+                </select>
+            </td>
+            <td>
+                <input type="number" class="form-control qte" name="qte[]" min="1">
+            </td>
+            <td>
+                <input type="text" class="form-control unite" name="unite[]" readonly>
+            </td>
+            <td>
+                <button type="button" class="btn btn-danger remove-row">Supprimer</button>
+            </td>
+        `);
+        tbody.append(row);
+
+        let isUpdating = false;
+
+        // Function to update disabled options
+        function updateDisabledOptions() {
+            const selectedIds = [];
+            tbody.find('.product-code').each(function() {
+                const selectedValue = $(this).val();
+                if (selectedValue) {
+                    selectedIds.push(selectedValue);
+                }
+            });
+
+            tbody.find('.product-code, .product-designation').each(function() {
+                const select = $(this);
+                select.find('option').each(function() {
+                    const option = $(this);
+                    if (selectedIds.includes(option.val())) {
+                        if (option.val() !== select.val()) {
+                            option.prop('disabled', true);
+                        }
+                    } else {
+                        option.prop('disabled', false);
+                    }
+                });
+            });
+        }
+
+        // Handle code change event to update designation, unite, and disabled options
+        row.find('.product-code').on('change', function() {
+            if (isUpdating) return;
+            isUpdating = true;
+
+            const selectedOption = $(this).find('option:selected');
+            const designation = selectedOption.data('designation');
+            const unite = selectedOption.data('unite');
+
+            const designationSelect = $(this).closest('tr').find('.product-designation');
+            designationSelect.val(selectedOption.val()).trigger('change');
+
+            $(this).closest('tr').find('.unite').val(unite);
+
+            updateDisabledOptions();
+            isUpdating = false;
+        });
+
+        // Handle designation change event to update code, unite, and disabled options
+        row.find('.product-designation').on('change', function() {
+            if (isUpdating) return;
+            isUpdating = true;
+
+            const selectedOption = $(this).find('option:selected');
+            const code = selectedOption.data('code');
+            const unite = selectedOption.data('unite');
+
+            const codeSelect = $(this).closest('tr').find('.product-code');
+            codeSelect.val(selectedOption.val()).trigger('change');
+
+            $(this).closest('tr').find('.unite').val(unite);
+
+            updateDisabledOptions();
+            isUpdating = false;
+        });
+
+        // Handle row removal
+        row.find('.remove-row').on('click', function() {
+            $(this).closest('tr').remove();
+            updateDisabledOptions();
+        });
+
+        // Initialize select2
+        $(document).ready(function() {
+            $('.select2').select2();
+        });
+
+        // Update the disabled options after adding a new row
+        updateDisabledOptions();
+    }
+
+    
+    });
+    document.getElementById('form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the default form submission
+            {# $('#btnImport').css('disabled', true); #}
+
+            var formData = new FormData(this);
+
+            $.ajax({
+                type: "POST",
+                url: "/bl/ajaxAddBl",
+                data: formData,
+                cache: false,
+                processData: false,
+                contentType: false,
+                success: function(data) {
+                    console.log('OK');
+                    if (data.codeStatut == "OK") {
+                        window.location = '/bl/list';
+
+                    } else {
+                        $('#btnImport').css('display', 'block');
+                        $('#progressBar').css('display', 'none');
+                        $(".fadeMe").css("visibility", "hidden");
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Erreur',
+                            text: data.message,
+                        });
+                    }
+
+                    {# $('#btnImport').css('disabled', false); #}
+
+                },
+                error: function(err){
+                    $('#btnImport').css('display', 'block');
+                    $('#progressBar').css('display', 'none');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erreur',
+                        text: "Une erreur s'est produite ! ",
+                    });
+                }
+            });
+    });
+
+</script>
+{% endblock %}

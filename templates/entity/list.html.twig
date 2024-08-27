@@ -1,0 +1,160 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+<style>
+    .divTable {
+        width: auto;
+        overflow: auto;
+    }
+    .table>tbody>tr>td, .table>tbody>tr>th {
+        padding: 8px 23px !important;
+    }
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-title {
+        font-size: 1.25rem; /* Adjust as needed */
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="page-inner">
+        <div class="page-header">
+            <h3 class="fw-bold mb-3">Entité</h3>
+            <ul class="breadcrumbs mb-3">
+                <li class="nav-home">
+                    <a href="#">
+                        <i class="icon-home"></i>
+                    </a>
+                </li>
+                <li class="separator">
+                    <i class="icon-arrow-right"></i>
+                </li>
+                <li class="nav-item">
+                    <a href="/entity/add">Ajouter une entité</a>
+                </li>
+                <li class="separator">
+                    <i class="icon-arrow-right"></i>
+                </li>
+                <li class="nav-item">
+                    <a href="#">Entité</a>
+                </li>
+            </ul>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header justify-content-between">
+                        <div class="card-title">Entité</div>
+                        <div>
+                            <a href="/entity/add" type="button" class="btn btn-info">+ Nouvelle entité</a>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="row mt-4">
+                            <table class="display table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date création</th>
+                                        <th>Entité</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for u in entity %}
+                                    <tr>
+                                        <td>{{ u.dateCreation | date('Y-m-d') }}</td>
+                                        <td>{{ u.entity }}</td>
+                                        <td>
+                                            <a href='/entity/update/{{u.id}}/' class="btn btn-primary" > Voir
+                                            </a>
+                                            <a class="btn btn-danger" style="color:white" title="Supprimer" onclick='confirmDelete({{u.id}})'>Supprimer
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="divTable">
+                                    <ul id="pagin" class="pagination justify-content-center"></ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="loading" style="text-align: center; display: none">
+                            <img src="{{ asset('img/loader.gif') }}" alt="Loading">
+                        </div>
+                        {# <input type="hidden" value="{{ totaux }}" id="totaux" name="totaux"> #}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+    function confirmDelete(id) {
+        Swal.fire({
+            title: 'Confirmer la suppression?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Oui'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    type: "DELETE",
+                    url: "/entity/delete/" + id,
+                    cache: false,
+                    processData: false,
+                    contentType: false,
+                    success: function(data) {
+                        if (data.codeStatut == "OK") {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Supprimé',
+                                showConfirmButton: false,
+                                timer: 1500
+                            }).then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Erreur',
+                                text: data.message,
+                            });
+                        }
+                    },
+                    error: function(err) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Erreur',
+                            text: "Une erreur s'est produite ! ",
+                        });
+                    }
+                });
+            }
+        });
+    }
+        $(document).ready(function() {
+        $('.table').DataTable({
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json',
+            },
+        });
+    });
+</script>
+{% endblock %}
