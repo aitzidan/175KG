@@ -150,4 +150,52 @@ class ChequeController extends AbstractController
         $respObjects["message"] = $this->MessageService->checkMessage($codeStatut);
         return $this->json($respObjects);
     }
+
+    #[Route('/cheque/validate', name: 'ajax_validateCheque')]
+    public function validateCheque(Request $request): Response
+    {
+        $respObjects = [];
+        $codeStatut = "ERROR"; // Default to error status
+        
+        // Decode the JSON payload from the request
+        $data_list = json_decode($request->getContent(), true);
+        $ids = $data_list['selectedIds'] ?? []; // Use null coalescing operator to handle missing 'selectedIds'
+        $respObjects["data"] = $ids;
+
+        // Fetch the list of cheques
+        $list = $this->ChequeService->getListCheque();
+        
+        $alreadyValidate = [];
+        foreach ($list as $cheque) {
+            if ($cheque->getEtat() == 2) {
+                $alreadyValidate[] = $cheque->getId();
+            }
+        }
+        $respObjects["alreadyValidate"] = $alreadyValidate;
+
+        // Update cheques that are already validated but not in the selectedIds
+        foreach ($alreadyValidate as $validateId) {
+            if (!in_array($validateId, $ids)) {
+                $cheque = $this->ChequeService->getCheque($validateId);
+                $cheque->setEtat(1);
+            }
+        }
+
+        // Update the cheques from the selectedIds to be in state 2
+        foreach ($ids as $id) {
+            $cheque = $this->ChequeService->getCheque($id);
+            $cheque->setEtat(2);
+        }
+
+        // Save all changes
+        $this->ChequeService->save();
+
+        $codeStatut = "OK"; // Set success status
+
+        $respObjects["codeStatut"] = $codeStatut;
+        $respObjects["message"] = $this->MessageService->checkMessage($codeStatut);
+
+        return $this->json($respObjects);
+    }
+
 }

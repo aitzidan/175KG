@@ -2,12 +2,13 @@
 
 namespace App\Entity;
 
-use App\Repository\ChequeRepository;
+use App\Repository\ReglementRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-#[ORM\Entity(repositoryClass: ChequeRepository::class)]
-class Cheque
+
+#[ORM\Entity(repositoryClass: ReglementRepository::class)]
+class Reglement
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -36,8 +37,12 @@ class Cheque
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $date_encaissement = null;
 
-    #[ORM\Column]
-    private ?int $etat = null;
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Entity $idEntity = null;
+
+    #[ORM\Column(length: 255)]
+    private ?string $banque = null;
 
     public function getId(): ?int
     {
@@ -128,14 +133,26 @@ class Cheque
         return $this;
     }
 
-    public function getEtat(): ?int
+    public function getIdEntity(): ?entity
     {
-        return $this->etat;
+        return $this->idEntity;
     }
 
-    public function setEtat(int $etat): static
+    public function setIdEntity(?entity $idEntity): static
     {
-        $this->etat = $etat;
+        $this->idEntity = $idEntity;
+
+        return $this;
+    }
+
+    public function getBanque(): ?string
+    {
+        return $this->banque;
+    }
+
+    public function setBanque(string $banque): static
+    {
+        $this->banque = $banque;
 
         return $this;
     }

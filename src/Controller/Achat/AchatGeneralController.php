@@ -26,6 +26,7 @@ class AchatGeneralController extends AbstractController
     #[Route('/achat-general/add', name: 'add_achat_general')]
     public function addAchatGeneral(): Response
     {
+        
         $category = $this->AchatGeneralService->getCategorie();
         $fournisseurs = $this->AchatGeneralService->getFournisseurs();
 

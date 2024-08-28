@@ -24,7 +24,7 @@
 <div class="container">
     <div class="page-inner">
         <div class="page-header">
-            <h3 class="fw-bold mb-3">Cheque</h3>
+            <h3 class="fw-bold mb-3">Réglement</h3>
             <ul class="breadcrumbs mb-3">
                 <li class="nav-home">
                     <a href="#">
@@ -35,13 +35,13 @@
                     <i class="icon-arrow-right"></i>
                 </li>
                 <li class="nav-item">
-                    <a href="/cheque/add">Ajouter un cheque</a>
+                    <a href="/reglement/add">Ajouter un réglement</a>
                 </li>
                 <li class="separator">
                     <i class="icon-arrow-right"></i>
                 </li>
                 <li class="nav-item">
-                    <a href="#">Cheque</a>
+                    <a href="#">Réglement</a>
                 </li>
             </ul>
         </div>
@@ -49,9 +49,9 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header justify-content-between">
-                        <div class="card-title">Cheque</div>
+                        <div class="card-title">Réglement</div>
                         <div>
-                            <a href="/cheque/add" type="button" class="btn btn-info">+ Nouveau cheque</a>
+                            <a href="/reglement/add" type="button" class="btn btn-info">+ Nouveau réglement</a>
                         </div>
                     </div>
                     
@@ -66,11 +66,13 @@
                                         <th>Numéro Facture</th>
                                         <th>Montant</th>
                                         <th>Date Encaissement</th>
+                                        <th>Entité</th>
+                                        <th>Banque</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {% for item in cheque %}
+                                    {% for item in reglement %}
                                     <tr>
                                         <td>{{ item.numero }}</td>
                                         <td>{{ item.date | date('Y-m-d') }}</td>
@@ -78,8 +80,10 @@
                                         <td>{{ item.numeroFacture }}</td>
                                         <td>{{ item.montant | number_format(2, ',', ' ') }} </td>
                                         <td>{{ item.dateEncaissement ? item.dateEncaissement | date('Y-m-d') : 'N/A' }}</td>
+                                        <td>{{ item.idEntity.entity }}</td>
+                                        <td>{{ item.banque }}</td>
                                         <td>
-                                            <a href='/cheque/update/{{ item.id }}' class="btn btn-primary">Voir</a>
+                                            <a href='/reglement/update/{{ item.id }}' class="btn btn-primary">Voir</a>
                                             <a class="btn btn-danger" style="color:white" title="Supprimer" onclick='confirmDelete({{ item.id }})'>Supprimer</a>
                                         </td>
                                     </tr>
@@ -100,7 +104,7 @@
     function confirmDelete(id) {
         Swal.fire({
             title: "Êtes-vous sûr ?",
-            text: "Êtes-vous sûr de vouloir supprimer ce cheque ?",
+            text: "Êtes-vous sûr de vouloir supprimer ce réglement ?",
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#d33",
@@ -110,7 +114,7 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: "/cheque/delete/" + id,
+                    url: "/reglement/delete/" + id,
                     type: "POST",
                     data: {id: id},
                     success: function(data) {

@@ -31,7 +31,7 @@ class AnalyseController extends AbstractController
     #[Route('/analyse', name: 'app_analyse_analyse')]
     public function index(): Response
     {
-        $chckAccess = $this->BaseService->Role(10);
+        $chckAccess = $this->BaseService->Role(68);
         if($chckAccess == 0){
             return $this->redirectToRoute('login');
         }else if ($chckAccess == 2){

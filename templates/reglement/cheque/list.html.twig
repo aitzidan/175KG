@@ -17,6 +17,22 @@
     .card-title {
         font-size: 1.25rem; /* Adjust as needed */
     }
+    .gold-background {
+        background-color: #F3CA52 !important;
+    }
+    .success-background {
+        background-color: #d4edda !important;
+    }
+    .selected-background {
+        background-color: #7ABA78 !important; /* Custom color for selected row */
+    }
+    .disabled-row {
+        background-color: #e9ecef !important; /* Gray color for disabled rows */
+        cursor: not-allowed;
+    }
+    .btn-validate {
+        cursor: pointer;
+    }
 </style>
 {% endblock %}
 
@@ -48,16 +64,20 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="card">
+                    <form>
+                    
+                    </form>
                     <div class="card-header justify-content-between">
                         <div class="card-title">Cheque</div>
                         <div>
-                            <a href="/cheque/add" type="button" class="btn btn-info">+ Nouveau cheque</a>
+                            <a href="/cheque/add" type="button" class="btn btn-primary">+ Nouveau cheque</a>
+                            <button type="button" class="btn btn-success" onclick='validateCheque()'><i class="fas fa-check"></i> Validé chèque</button>
                         </div>
                     </div>
                     
                     <div class="card-body">
                         <div class="row mt-4">
-                            <table class="display table table-striped table-hover">
+                            <table class="table">
                                 <thead>
                                     <tr>
                                         <th>Numéro</th>
@@ -66,21 +86,33 @@
                                         <th>Numéro Facture</th>
                                         <th>Montant</th>
                                         <th>Date Encaissement</th>
+                                        <th>État</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for item in cheque %}
-                                    <tr>
-                                        <td>{{ item.numero }}</td>
-                                        <td>{{ item.date | date('Y-m-d') }}</td>
-                                        <td>{{ item.destinataire.rs  }}</td>
-                                        <td>{{ item.numeroFacture }}</td>
-                                        <td>{{ item.montant | number_format(2, ',', ' ') }} </td>
-                                        <td>{{ item.dateEncaissement ? item.dateEncaissement | date('Y-m-d') : 'N/A' }}</td>
-                                        <td>
-                                            <a href='/cheque/update/{{ item.id }}' class="btn btn-primary">Voir</a>
-                                            <a class="btn btn-danger" style="color:white" title="Supprimer" onclick='confirmDelete({{ item.id }})'>Supprimer</a>
+                                    {% set today = "now"|date('Y-m-d') %}
+                                    {% set encaissementDate = item.dateEncaissement ? item.dateEncaissement|date('Y-m-d') : null %}
+                                    <tr id="row-{{ item.id }}" data-etat="{{ item.etat }}" class="{{ encaissementDate and encaissementDate <= today ? 'gold-background' : '' }} {% if item.etat == '0' %} disabled-row{% endif %}">
+                                        <td class="{{ encaissementDate and encaissementDate <= today ? 'gold-background' : '' }}">{{ item.numero }}</td>
+                                        <td class="{{ encaissementDate and encaissementDate <= today ? 'gold-background' : '' }}">{{ item.date | date('Y-m-d') }}</td>
+                                        <td class="{{ encaissementDate and encaissementDate <= today ? 'gold-background' : '' }}">{{ item.destinataire.rs }}</td>
+                                        <td class="{{ encaissementDate and encaissementDate <= today ? 'gold-background' : '' }}">{{ item.numeroFacture }}</td>
+                                        <td class="{{ encaissementDate and encaissementDate <= today ? 'gold-background' : '' }}">{{ item.montant | number_format(2, ',', ' ') }}</td>
+                                        <td class="{{ encaissementDate and encaissementDate <= today ? 'gold-background' : '' }}">{{ item.dateEncaissement ? item.dateEncaissement | date('Y-m-d') : 'N/A' }}</td>
+                                        <td class="{{ encaissementDate and encaissementDate <= today ? 'gold-background' : '' }}">
+                                            {% if item.etat == '0' %}
+                                            <span class="badge badge-primary">Créer</span>
+                                            {% elseif item.etat == '1' %}
+                                            <span class="badge badge-success">Validé</span>
+                                            {% elseif item.etat == '2' %}
+                                            <span class="badge badge-success">Chequé</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="{{ encaissementDate and encaissementDate <= today ? 'gold-background' : '' }}">
+                                            <a href='/cheque/update/{{ item.id }}' class="btn btn-primary btn-small"><i class="fas fa-pen"></i></a>
+                                            <a class="btn btn-danger" style="color:white" title="Supprimer" onclick='confirmDelete({{ item.id }})'><i class="fas fa-trash"></i></a>
                                         </td>
                                     </tr>
                                     {% endfor %}
@@ -97,6 +129,8 @@
 
 {% block javascripts %}
 <script>
+    const selectedRows = new Set(); // Global scope to be accessible from any function
+
     function confirmDelete(id) {
         Swal.fire({
             title: "Êtes-vous sûr ?",
@@ -112,8 +146,8 @@
                 $.ajax({
                     url: "/cheque/delete/" + id,
                     type: "POST",
-                    data: {id: id},
-                    success: function(data) {
+                    data: { id: id },
+                    success: function (data) {
                         if (data.codeStatut == 'OK') {
                             window.location.reload();
                         } else {
@@ -124,7 +158,7 @@
                             });
                         }
                     },
-                    error: function() {
+                    error: function () {
                         Swal.fire({
                             icon: 'error',
                             title: 'Erreur',
@@ -135,13 +169,85 @@
             }
         });
     }
-    
-      $(document).ready(function() {
+
+    function setInitialSelections() {
+        document.querySelectorAll('tbody tr').forEach(function (row) {
+            const etat = row.getAttribute('data-etat');
+            const rowId = row.id.split('-')[1];
+            
+            if (etat == '2') {
+                row.classList.add('selected-background');
+                row.querySelectorAll('td').forEach(cell => cell.classList.add('selected-background'));
+                selectedRows.add(rowId);
+            }
+        });
+        console.log('Selected rows on page load:', Array.from(selectedRows));
+    }
+
+    document.querySelectorAll('tbody tr').forEach(function (row) {
+        row.addEventListener('click', function () {
+            const rowId = this.id.split('-')[1];
+            const cells = this.querySelectorAll('td');
+            const etat = this.getAttribute('data-etat');
+
+            if (etat === '0') {
+                // Do nothing if the row is disabled
+                return;
+            }
+
+            if (selectedRows.has(rowId)) {
+                this.classList.remove('selected-background');
+                cells.forEach(cell => cell.classList.remove('selected-background'));
+                selectedRows.delete(rowId);
+            } else {
+                this.classList.add('selected-background');
+                cells.forEach(cell => cell.classList.add('selected-background'));
+                selectedRows.add(rowId);
+            }
+
+            console.log('Selected rows:', Array.from(selectedRows));
+        });
+    });
+
+    $(document).ready(function () {
         $('.table').DataTable({
             language: {
                 url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json',
             },
         });
+        setInitialSelections();
     });
+
+    function validateCheque() {
+        
+
+        // Convert selectedRows Set to Array
+        const selectedIds = Array.from(selectedRows);
+
+        $.ajax({
+            url: '/cheque/validate',
+            type: 'POST',
+            data: JSON.stringify({ selectedIds: selectedIds }),
+            contentType: 'application/json',
+            success: function (response) {
+                Swal.fire({
+                    icon: response.codeStatut === 'OK' ? 'success' : 'error',
+                    title: response.codeStatut === 'OK' ? 'Succès' : 'Erreur',
+                    text: response.message,
+                }).then(() => {
+                    if (response.codeStatut === 'OK') {
+                        window.location.reload();
+                    }
+                });
+            },
+            error: function () {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur',
+                    text: 'Une erreur est survenue.',
+                });
+            },
+        });
+    }
 </script>
 {% endblock %}

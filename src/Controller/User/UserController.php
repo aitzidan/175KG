@@ -62,22 +62,22 @@ class UserController extends AbstractController
         }
     }
 
-    #[Route('/dashbord', name: 'dashbord')]
-    public function DashbordAction(Request $request, EntityManagerInterface $entityManager)
-    {
-        $session = new Session();
-        $isConnected = $session->get('isConnected');
+    // #[Route('/dashbord', name: 'dashbord')]
+    // public function DashbordAction(Request $request, EntityManagerInterface $entityManager)
+    // {
+    //     $session = new Session();
+    //     $isConnected = $session->get('isConnected');
        
-        if($isConnected != true){
-            return $this->redirectToRoute('login');
-        }
-        else{
-            $userId = $session->get('user_id');
-            $user = $entityManager->getRepository(User::class)->find($userId);
-            return $this->render('Base/index.html.twig',
-            array("util"=> $user));
-        }
-    }
+    //     if($isConnected != true){
+    //         return $this->redirectToRoute('login');
+    //     }
+    //     else{
+    //         $userId = $session->get('user_id');
+    //         $user = $entityManager->getRepository(User::class)->find($userId);
+    //         return $this->render('Base/index.html.twig',
+    //         array("util"=> $user));
+    //     }
+    // }
 
 
     #[Route('/login', name: 'login')]
@@ -132,26 +132,28 @@ class UserController extends AbstractController
     public function addUser(Request $request, EntityManagerInterface $entityManager): Response
     {
         $session = new Session();
-        $codeStatut = "";
-        $response = "";
-        $data = ["nom" => '',"tele" => '',"email" => '',"address" => ''];
+
         $isConnected = $session->get('isConnected');
         
         if($isConnected == false){
             return $this->redirectToRoute('login');
         }
 
-        $userId = $session->get('user_id');
-        $user = $entityManager->getRepository(User::class)->find($userId);
-        $isConnected = $session->get('isConnected');
-
-        $authStatus = $this->BaseService->checkConnectionAndRole('ADDUSER');
-        if ($authStatus === 'NOT_CONNECTED') {
+        
+        $chckAccess = $this->BaseService->Role(61);
+        if($chckAccess == 0){
             return $this->redirectToRoute('login');
-        } elseif ($authStatus === 'NOT_ROLE') {
+        }else if ($chckAccess == 2){
             return $this->redirectToRoute('listUsers');
         }
 
+        $userId = $session->get('user_id');
+        $user = $entityManager->getRepository(User::class)->find($userId);
+
+        $codeStatut = "";
+        $response = "";
+        $data = ["nom" => '',"tele" => '',"email" => '',"address" => ''];
+        
         try {
 
             $profilsListe = $this->profilRepository->findAll();
@@ -217,90 +219,95 @@ class UserController extends AbstractController
             return $this->redirectToRoute('login');
         }
 
+        $chckAccess = $this->BaseService->Role(62);
+        if($chckAccess == 0){
+            return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
+        }
+
         $userId = $session->get('user_id');
         $user = $entityManager->getRepository(User::class)->find($userId);
         $isConnected = $session->get('isConnected');
 
         $authStatus = $this->BaseService->checkConnectionAndRole('UPDAUSER');
 
-        if ($authStatus === 'NOT_CONNECTED') {
-            return $this->redirectToRoute('login');
-        } elseif ($authStatus === 'NOT_ROLE') {
-            return $this->redirectToRoute('listUsers');
-        }
-            try {
+        // if ($authStatus === 'NOT_CONNECTED') {
+        //     return $this->redirectToRoute('login');
+        // } elseif ($authStatus === 'NOT_ROLE') {
+        //     return $this->redirectToRoute('listUsers');
+        // }
+        try {
 
-                $response = "";
-                $data = ["nom" => '',"tele" => '',"email" => '',"address" => '',"profil" => '',"active" => '',"picture" => ''];
+            $response = "";
+            $data = ["nom" => '',"tele" => '',"email" => '',"address" => '',"profil" => '',"active" => '',"picture" => ''];
+
+            $profilsListe = $entityManager->getRepository(Profil::class)->findAll();
+            $rolesListe = $entityManager->getRepository(Role::class)->findAll();
+
+            $user = $this->userRepository->find($id);
+
+            if ($user) 
+            {
+
+                $data = [
+                    "nom" => $user->getUsername(),
+                    "tele" => $user->getPhone(),
+                    "email" => $user->getEmail(),
+                    "address" => $user->getAddress(),
+                    "profil" => $user->getProfil(),
+                    "active" => $user->getIsActif(),
+                    "picture" => $user->getImage()
+                ];
     
-                $profilsListe = $entityManager->getRepository(Profil::class)->findAll();
-                $rolesListe = $entityManager->getRepository(Role::class)->findAll();
+                if ($request->getMethod() == 'POST') {
 
-                $user = $this->userRepository->find($id);
+                    $data = $request->request->all();
+                    $file = $request->files->get('picture');
 
-                if ($user) 
-                {
+                    // Find the profil by its ID (assuming 'profil' is passed as an ID)
+                    $profil = $entityManager->getRepository(Profil::class)->find($data['profil'][0]);
 
-                    $data = [
-                        "nom" => $user->getUsername(),
-                        "tele" => $user->getPhone(),
-                        "email" => $user->getEmail(),
-                        "address" => $user->getAddress(),
-                        "profil" => $user->getProfil(),
-                        "active" => $user->getIsActif(),
-                        "picture" => $user->getImage()
-                    ];
-        
-                    if ($request->getMethod() == 'POST') {
+                    // Prepare data to be passed to the repository function
+                    $data['profil'] = $profil;
+                    $this->userRepository->MAJUser($id, $data, $file);
 
-                        $data = $request->request->all();
-                        $file = $request->files->get('picture');
-
-                        // Find the profil by its ID (assuming 'profil' is passed as an ID)
-                        $profil = $entityManager->getRepository(Profil::class)->find($data['profil'][0]);
-
-                        // Prepare data to be passed to the repository function
-                        $data['profil'] = $profil;
-                        $this->userRepository->MAJUser($id, $data, $file);
-    
-                        $codeStatut="OK";
-                        $response = $this->MessageService->checkMessage($codeStatut);
-                    }
-    
-                    return $this->render('user/updateUser.html.twig', [
-                        'controller_name' => 'UserController',
-                        'rolesListe' => $rolesListe,
-                        'roles' => $rolesListe,
-                        'data' => $data,
-                        'profils' => $profilsListe,
-                        'codeStatut' => $codeStatut,
-                        'response' => $response
-                    ]);
-                } 
-                else 
-                {
-                    return $this->redirectToRoute('listUsers');
+                    $codeStatut="OK";
+                    $response = $this->MessageService->checkMessage($codeStatut);
                 }
 
+                return $this->render('user/updateUser.html.twig', [
+                    'controller_name' => 'UserController',
+                    'rolesListe' => $rolesListe,
+                    'roles' => $rolesListe,
+                    'data' => $data,
+                    'profils' => $profilsListe,
+                    'codeStatut' => $codeStatut,
+                    'response' => $response
+                ]);
             } 
-            catch (\Exception $e) 
+            else 
             {
-                $codeStatut="ERREUR-EXCEPTION";
-                $response = $this->MessageService->checkMessage($codeStatut);
-    
+                return $this->redirectToRoute('listUsers');
             }
-    
-            return $this->render('user/updateUser.html.twig', [
-                'controller_name' => 'UserController',
-                'roles' => $rolesListe,
-                'data' => $data,
-                'profils' => $profilsListe,
-                'response' => $response,
-                'codeStatut' => $codeStatut,
-                "util"=> $user
-            ]);
 
-        
+        } 
+        catch (\Exception $e) 
+        {
+            $codeStatut="ERREUR-EXCEPTION";
+            $response = $this->MessageService->checkMessage($codeStatut);
+
+        }
+
+        return $this->render('user/updateUser.html.twig', [
+            'controller_name' => 'UserController',
+            'roles' => $rolesListe,
+            'data' => $data,
+            'profils' => $profilsListe,
+            'response' => $response,
+            'codeStatut' => $codeStatut,
+            "util"=> $user
+        ]);
     }
 
 
@@ -317,9 +324,11 @@ class UserController extends AbstractController
         // }
 
         $authStatus = $this->BaseService->checkConnectionAndRole('REMOUSER');
-        if ($authStatus === 'NOT_CONNECTED') {
+
+        $chckAccess = $this->BaseService->Role(63);
+        if($chckAccess == 0){
             return $this->json(['error' => $authStatus], Response::HTTP_INTERNAL_SERVER_ERROR);
-        } elseif ($authStatus === 'NOT_ROLE') {
+        }else if ($chckAccess == 2){
             return $this->json(['error' => $authStatus], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
@@ -358,11 +367,17 @@ class UserController extends AbstractController
         $user = $entityManager->getRepository(User::class)->find($userId);
         $isConnected = $session->get('isConnected');
 
-        if($isConnected == false){
+        $chckAccess = $this->BaseService->Role(60);
+        if($chckAccess == 0){
             return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            $users = [];
+        }else{
+
+            // Fetch all profiles from the repository
+            $users = $this->userRepository->findAll();
         }
-        // Fetch all profiles from the repository
-        $users = $this->userRepository->findAll();
+
 
         // Render the Twig template and pass the profiles to it
         return $this->render('user/listUsers.html.twig', [
@@ -389,13 +404,13 @@ class UserController extends AbstractController
         $user = $entityManager->getRepository(User::class)->find($userId);
         $isConnected = $session->get('isConnected');
 
-        $authStatus = $this->BaseService->checkConnectionAndRole('ADDPROF');
+        // $authStatus = $this->BaseService->checkConnectionAndRole('ADDPROF');
 
-        if ($authStatus === 'NOT_CONNECTED') {
-            return $this->redirectToRoute('login');
-        } elseif ($authStatus === 'NOT_ROLE') {
-            return $this->redirectToRoute('listUsers');
-        }
+        // if ($authStatus === 'NOT_CONNECTED') {
+        //     return $this->redirectToRoute('login');
+        // } elseif ($authStatus === 'NOT_ROLE') {
+        //     return $this->redirectToRoute('listUsers');
+        // }
 
         $response = "";
         $data = ["libelle" => '',"description" => ''];
@@ -457,11 +472,11 @@ class UserController extends AbstractController
 
         $authStatus = $this->BaseService->checkConnectionAndRole('UPDAPROF');
 
-        if ($authStatus === 'NOT_CONNECTED') {
-            return $this->redirectToRoute('login');
-        } elseif ($authStatus === 'NOT_ROLE') {
-            return $this->redirectToRoute('listUsers');
-        }
+        // if ($authStatus === 'NOT_CONNECTED') {
+        //     return $this->redirectToRoute('login');
+        // } elseif ($authStatus === 'NOT_ROLE') {
+        //     return $this->redirectToRoute('listUsers');
+        // }
 
 
             $response = "";
@@ -540,11 +555,11 @@ class UserController extends AbstractController
 
         $authStatus = $this->BaseService->checkConnectionAndRole('LISTPROF');
 
-        if ($authStatus === 'NOT_CONNECTED') {
-            return $this->redirectToRoute('login');
-        } elseif ($authStatus === 'NOT_ROLE') {
-            return $this->redirectToRoute('listUsers');
-        }
+        // if ($authStatus === 'NOT_CONNECTED') {
+        //     return $this->redirectToRoute('login');
+        // } elseif ($authStatus === 'NOT_ROLE') {
+        //     return $this->redirectToRoute('listUsers');
+        // }
 
         // Fetch all profiles from the repository
         $profils = $this->profilRepository->findAll();
@@ -568,11 +583,11 @@ class UserController extends AbstractController
         }
 
         $authStatus = $this->BaseService->checkConnectionAndRole('REMOPROF');
-        if ($authStatus === 'NOT_CONNECTED') {
-            return $this->json(['error' => $authStatus], Response::HTTP_INTERNAL_SERVER_ERROR);
-        } elseif ($authStatus === 'NOT_ROLE') {
-            return $this->json(['error' => $authStatus], Response::HTTP_INTERNAL_SERVER_ERROR);
-        }
+        // if ($authStatus === 'NOT_CONNECTED') {
+        //     return $this->json(['error' => $authStatus], Response::HTTP_INTERNAL_SERVER_ERROR);
+        // } elseif ($authStatus === 'NOT_ROLE') {
+        //     return $this->json(['error' => $authStatus], Response::HTTP_INTERNAL_SERVER_ERROR);
+        // }
 
         try 
         {
