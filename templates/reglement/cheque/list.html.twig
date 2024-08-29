@@ -71,7 +71,7 @@
                         <div class="card-title">Cheque</div>
                         <div>
                             <a href="/cheque/add" type="button" class="btn btn-primary">+ Nouveau cheque</a>
-                            <button type="button" class="btn btn-success" onclick='validateCheque()'><i class="fas fa-check"></i> Validé chèque</button>
+                            <button type="button" class="btn btn-success" onclick='validateCheque()'><i class="fas fa-check"></i> Valider chèque</button>
                         </div>
                     </div>
                     
@@ -112,6 +112,10 @@
                                         </td>
                                         <td class="{{ encaissementDate and encaissementDate <= today ? 'gold-background' : '' }}">
                                             <a href='/cheque/update/{{ item.id }}' class="btn btn-primary btn-small"><i class="fas fa-pen"></i></a>
+                                            {% if item.etat == 0 %}
+                                            <a class="btn btn-success" style="color:white" title="Valider" onclick='confirmValidation({{item.id}})'><i class="fas fa-check"></i>
+                                            </a>
+                                            {% endif %}
                                             <a class="btn btn-danger" style="color:white" title="Supprimer" onclick='confirmDelete({{ item.id }})'><i class="fas fa-trash"></i></a>
                                         </td>
                                     </tr>
@@ -249,5 +253,46 @@
             },
         });
     }
+
+    function confirmValidation(id) {
+        Swal.fire({
+            title: "Êtes-vous sûr de vouloir valider cette opération ?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Valider",
+            cancelButtonText: "Annuler",
+        }).then((result) => {
+
+            if (result.isConfirmed) {
+
+                $.ajax({
+                    url: "/cheque/validate/"+id,
+                    type: "POST",
+                    data: {id: id},
+                    success: function(data) {
+                        if(data.codeStatut == 'OK') {
+                            window.location.reload();
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: data.message,
+                            });
+                        }
+                    },
+                    error: function(xhr, ajaxOptions, thrownError) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: "une erreur s'est produite",
+                        });
+                    }
+                });
+            }
+        });
+    }
+
 </script>
 {% endblock %}

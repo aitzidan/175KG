@@ -16,6 +16,7 @@ class Caisse
     #[ORM\Column(length: 255)]
     private ?string $caisse = null;
 
+
     public function getId(): ?int
     {
         return $this->id;
@@ -32,4 +33,5 @@ class Caisse
 
         return $this;
     }
+
 }

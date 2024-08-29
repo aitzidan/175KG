@@ -1,0 +1,356 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Revient{% endblock %}
+
+{% block body %}
+    <style>
+        .elementValue{
+            font-size: larger;
+        }
+        .boldElement{
+            font-weight: bolder;
+        }
+    </style>
+    <div class="container">
+        <div class="page-inner">
+            <div class="page-header">
+                <h3 class="fw-bold mb-3">Modifier Revient</h3>
+                <ul class="breadcrumbs mb-3">
+                    <li class="nav-home">
+                        <a href="#">
+                            <i class="icon-home"></i>
+                        </a>
+                    </li>
+                    <li class="separator">
+                        <i class="icon-arrow-right"></i>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#">Modifier un revient</a>
+                    </li>
+                    <li class="separator">
+                        <i class="icon-arrow-right"></i>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/revient/list">Revient</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Modifier un revient</div>
+                        </div>
+                        <div class="card-body">
+                            <form class="forms-sample col-md-12" id="form" enctype="multipart/form-data">
+                                <h3 class='text-primary mt-4'>Détails Revient :</h3>
+                                <div class="form-group row">
+                                    <label class="col-sm-2 col-form-label">Nom du produit : <span style="color:red">*</span></label>
+                                    <div class="col-sm-10">
+                                        <input type="text" class="form-control" id="nom_produit" name="nom_produit" value="{{ revient.nomProduit }}">
+                                    </div>
+                                    <label class="col-sm-2 col-form-label">Nombre d'unité : <span style="color:red">*</span></label>
+                                    <div class="col-sm-10">
+                                        <input type="number" class="form-control" id="nombre_unite" name="nombre_unite" onchange="onchangeNombreUnite()" value="{{ revient.nombreUnite }}">
+                                    </div>
+                                </div>
+
+                                <!-- Table for Revient details -->
+                                <div class='w-100 d-flex justify-content-between'>
+                                    <h3 class='text-primary mt-4'>Calcul pour <span id="value_nombre_unite">1</span> unités produites :</h3>
+                                    <button type="button" class="btn btn-primary" id="addRow">Ajouter une ligne</button>
+                                </div>
+
+                                <div class="form-group row mt-4">
+                                    <div class="col-sm-12">
+                                        <table class="display table table-striped table-hover" id="revientTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Désignation matière ou article</th>
+                                                    <th>Fournisseur</th>
+                                                    <th>Unité</th>
+                                                    <th>Coût d'achat HT à l'unité</th>
+                                                    <th>Unités nécessaires</th>
+                                                    <th>Prix de revient HT</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <!-- Rows will be dynamically added here -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div class="mt-4 w-100 justify-content-end row">
+                                    <div class="col-6"></div>
+                                    <div class="row col-6 mx-auto pt-2 pb-2" style="background: #48abf72e;">
+                                        <div class="col-12 d-flex justify-content-end mb-2">
+                                            <div class="d-flex justify-content-between w-100">
+                                                <span class="elementValue">Total prix de revient HT pour le nombre d'unités à produire:</span>
+                                                <span class="font-weight-bold" id="total_ht">{{ revient.totalHt }}</span>
+                                                <input type="hidden" name="total_ht" value="{{ revient.totalHt }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-12 d-flex justify-content-end mb-2">
+                                            <div class="d-flex justify-content-between w-100">
+                                                <span class="elementValue boldElement">Prix de revient HT unitaire:</span>
+                                                <span class="font-weight-bold" id="prix_revient_ht">{{ revient.prixHt }}</span>
+                                                <input type="hidden" name="prix_revient_ht" value="{{ revient.prixHt }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-12 d-flex justify-content-end mb-2">
+                                            <div class="d-flex justify-content-between w-100">
+                                                <span class="elementValue boldElement">Prix de vente HT:</span>
+                                                <input type="number" step="0.01" name="prix_vente_ht" id="prix_vente_ht" value="{{ revient.prixVenteHt }}" onchange="updateCalculations()">
+                                            </div>
+                                        </div>
+                                        <div class="col-12 d-flex justify-content-end mb-2">
+                                            <div class="d-flex justify-content-between w-100">
+                                                <span class="elementValue">Marge brute:</span>
+                                                <span class="font-weight-bold" id="marge_brute">{{ revient.margeBrute }}</span>
+                                                <input type="hidden" name="marge_brute" value="{{ revient.margeBrute }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-12 d-flex justify-content-end mb-2">
+                                            <div class="d-flex justify-content-between w-100">
+                                                <span class="elementValue">Taux de marge:</span>
+                                                <span class="font-weight-bold" id="taux_marge">{{ revient.tauxMarge }}</span>
+                                                <input type="hidden" name="taux_marge" value="{{ revient.tauxMarge }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-12 d-flex justify-content-end">
+                                            <div class="d-flex justify-content-between w-100">
+                                                <span class="elementValue text-danger">Coefficient de marge:</span>
+                                                <span class="font-weight-bold text-danger" id="coefficient_marge">{{ revient.coefficientMarge }}</span>
+                                                <input type="hidden" name="coefficient_marge" value="{{ revient.coefficientMarge }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-group mt-5" style="display:flex; justify-content: center;">
+                                    <input type="submit" class="btn btn-success" value="Modifier" id="btnImport">
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+function onchangeNombreUnite(){
+    const value = document.getElementById('nombre_unite').value;
+     $('#value_nombre_unite').text(value);
+     updateCalculations();
+}
+function updateCalculations() {
+    let totalHt = 0;
+    let totalUnits = 0;
+
+    $('#revientTable tbody tr').each(function() {
+        const prixHt = parseFloat($(this).find('.marge-brute').val()) || 0;
+        const unitsNeeded = parseFloat($(this).find('.taux-marge').val()) || 0;
+        const coefficientMarge = prixHt * unitsNeeded;
+        
+        // Update prix_ht field
+        $(this).find('.coefficient-marge').val(coefficientMarge.toFixed(2));
+
+        totalHt += coefficientMarge;
+        totalUnits += unitsNeeded;
+    });
+
+    const nombre_unite = document.getElementById('nombre_unite').value;
+    const prixRevientHt = nombre_unite ? (totalHt / nombre_unite).toFixed(2) : 0;
+    const prixVenteHt = document.getElementById('prix_vente_ht').value;
+    const margeBrute = (prixVenteHt - prixRevientHt).toFixed(2);
+    const tauxMarge = prixRevientHt ? (margeBrute / prixRevientHt).toFixed(2) : 0;
+    const coefficientMarge = prixRevientHt ? (prixVenteHt / prixRevientHt).toFixed(2) : 0;
+
+    // Update the UI with calculated values
+    $('#total_ht').text(totalHt.toFixed(2));
+    $('#prix_revient_ht').text(prixRevientHt);
+    $('#marge_brute').text(margeBrute);
+    $('#taux_marge').text(tauxMarge);
+    $('#coefficient_marge').text(coefficientMarge);
+
+    // Update hidden fields
+    $('input[name="total_ht"]').val(totalHt.toFixed(2));
+    $('input[name="prix_revient_ht"]').val(prixRevientHt);
+    $('input[name="marge_brute"]').val(margeBrute);
+    $('input[name="taux_marge"]').val(tauxMarge);
+    $('input[name="coefficient_marge"]').val(coefficientMarge);
+}
+
+// Function to populate fournisseur dropdown
+function populateFournisseurDropdown() {
+    $.ajax({
+        url: '/fournisseur/listAjaxFournisseur',
+        type: 'GET',
+        success: function(response) {
+            if (response.codeStatut === 'OK') {
+                const fournisseurData = response.data;
+                const selectOptions = fournisseurData.map(fournisseur => 
+                    `<option value="${fournisseur.id}">${fournisseur.rs}</option>`
+                ).join('');
+                
+                $('#revientTable tbody').find('select.fournisseur').each(function() {
+                    $(this).html(selectOptions);
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur',
+                    text: response.message,
+                });
+            }
+        },
+        error: function() {
+            Swal.fire({
+                icon: 'error',
+                title: 'Erreur',
+                text: "Une erreur s'est produite lors du chargement des fournisseurs.",
+            });
+        }
+    });
+}
+
+// Function to add a new row
+function addRow() {
+    const tbody = $('#revientTable tbody');
+    const row = $('<tr>');
+    row.append(`
+        <td><input type="text" class="form-control total-ht" name="designation[]"></td>
+        <td><select class="form-control fournisseur select2" name="fournisseur[]" ></select></td>
+        <td><input type="text" class="form-control unite" name="unite[]"></td>
+        <td><input type="number" class="form-control marge-brute" name="cout_achat[]" step="0.01"></td>
+        <td><input type="number" class="form-control taux-marge" name="unite_necessaire[]" step="0.01"></td>
+        <td><input type="number" class="form-control coefficient-marge" name="prix_ht[]" readonly step="0.01"></td>
+        <td><button type="button" class="btn btn-danger remove-row">Supprimer</button></td>
+    `);
+    tbody.append(row);
+
+    // Populate the fournisseur dropdown for the new row
+    populateFournisseurDropdown();
+
+    // Handle row removal
+    row.find('.remove-row').on('click', function() {
+        $(this).closest('tr').remove();
+        updateCalculations(); // Update calculations when a row is removed
+    });
+
+    // Add change event listeners to the new row inputs
+    row.find('input').on('input', function() {
+        updateCalculations();
+    });
+     // Initialize select2
+    $(document).ready(function() {
+        $('.select2').select2();
+    });
+}
+
+// Document ready function
+$(document).ready(function() {
+
+    // Function to get details :
+    function getBlDetails() {
+        console.log("OK")
+        const blId = "{{ id }}";
+        $.ajax({
+            type: "GET",
+            url: `/revient/getDetailsRevient/${blId}`,
+            cache: false,
+            success: function(data) {
+                if (data.codeStatut === "OK") {
+                    populateForm(data.data);
+                } else {
+                    console.error(data.message);
+                }
+            },
+            error: function(err){
+                console.error("An error occurred:", err);
+            }
+        });
+    }
+
+        function populateForm(blDetails) {
+            const tbody = $('#revientTable tbody');
+            tbody.empty(); // Clear existing rows
+
+            blDetails.forEach(detail => {
+                const row = $('<tr>');
+                row.append(`
+                
+                     <td><input type="text" class="form-control total-ht" name="designation[]"></td>
+                    <td><select class="form-control fournisseur select2" name="fournisseur[]" ></select></td>
+                    <td><input type="text" class="form-control unite" name="unite[]"></td>
+                    <td><input type="number" class="form-control marge-brute" name="cout_achat[]" step="0.01"></td>
+                    <td><input type="number" class="form-control taux-marge" name="unite_necessaire[]" step="0.01"></td>
+                    <td><input type="number" class="form-control coefficient-marge" name="prix_ht[]" readonly step="0.01"></td>
+                    <td><button type="button" class="btn btn-danger remove-row">Supprimer</button></td>
+                `);
+                tbody.append(row);
+
+                // Initialize select2
+                row.find('.select2').select2();
+
+                // Attach event handlers
+                attachRowEvents(row);
+            });
+
+            updateDisabledOptions(); // Update the disabled options after populating the form
+        }
+
+
+    // Initial population of fournisseur dropdown
+    populateFournisseurDropdown();
+
+    $('#addRow').on('click', function() {
+        addRow();
+    });
+
+    // Add initial change event listeners to existing rows
+    $('#revientTable').on('input', 'input', function() {
+        updateCalculations();
+    });
+
+    document.getElementById('form').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the default form submission
+
+        var formData = new FormData(this);
+
+        $.ajax({
+            type: "POST",
+            url: "/revient/ajaxAddRevient",
+            data: formData,
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                if (data.codeStatut == "OK") {
+                    window.location = '/revient/list';
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erreur',
+                        text: data.message,
+                    });
+                }
+            },
+            error: function(err){
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erreur',
+                    text: "Une erreur s'est produite ! ",
+                });
+            }
+        });
+    });
+});
+
+</script>
+{% endblock %}

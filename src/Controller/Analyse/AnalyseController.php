@@ -60,6 +60,14 @@ class AnalyseController extends AbstractController
         $date_debut = $request->get('date_debut');
         $date_fin = $request->get('date_fin');
 
+        $chckAccess = $this->BaseService->Role(68);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
+
+
         if($titre != "" && !empty($date_debut) && !empty($date_fin) ){
             $date_debut = new \DateTime($date_debut);
             $date_fin = new \DateTime($date_fin);
@@ -366,11 +374,19 @@ class AnalyseController extends AbstractController
         $respObjects["message"] = $this->MessageService->checkMessage($codeStatut);
         return $this->json($respObjects);
     }
+    
     #[Route('/analyse/historique', name: 'app_analyse_historique')]
     public function historique(): Response
     {
         $codeStatut = "";
         $response = "";
+
+        $chckAccess = $this->BaseService->Role(82);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
 
         $analyse = $this->AnalyseService->getListe();
         

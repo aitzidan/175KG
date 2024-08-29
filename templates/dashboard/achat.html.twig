@@ -1,0 +1,140 @@
+{% extends 'base.html.twig' %}
+
+{% block stylesheets %}
+<style>
+    .divTable {
+        width: auto;
+        overflow: auto;
+    }
+
+    .table>tbody>tr>td, .table>tbody>tr>th {
+        padding: 8px 23px !important;
+    }
+    
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-title {
+        font-size: 1.25rem; /* Adjust as needed */
+    }
+
+    .form-select {
+        margin-bottom: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="page-inner">
+        <div class="page-header">
+            <h3 class="fw-bold mb-3">Tableau de bord</h3>
+            <ul class="breadcrumbs mb-3">
+                <li class="nav-home">
+                    <a href="#">
+                        <i class="icon-home"></i>
+                    </a>
+                </li>
+            </ul>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header justify-content-between">
+                        <div class="card-title">Tableau de bord fournisseur</div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <select id="yearSelect" class="form-select">
+                                    {# {% for year in years %}
+                                        <option value="{{ year }}" {% if year == currentYear %}selected{% endif %}>{{ year }}</option>
+                                    {% endfor %} #}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mt-4">
+                            <table class="display table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Fournisseur</th>
+                                        {% for month in 1..12 %}
+                                            <th>{{ month  }}</th>
+                                        {% endfor %}
+                                        <th>Total Annuel</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="fournisseurTableBody">
+                                    <!-- Data will be loaded here via AJAX -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+   $(document).ready(function() {
+        var table;
+
+        function fetchData(year) {
+            $.ajax({
+                url: '{{ path('api_getDataFournisseur') }}',
+                method: 'GET',
+                dataType: 'json',
+                data: { year: year },
+                success: function(data) {
+                    var tableBody = $('#fournisseurTableBody');
+                    tableBody.empty(); // Clear existing data
+
+                    data.forEach(function(fournisseur) {
+                        var row = '<tr>' +
+                            '<td>' + fournisseur.rs + '</td>';
+
+                        for (var month = 1; month <= 12; month++) {
+                            row += '<td> ' + (fournisseur.monthlyTotals[month] || 0).toFixed(2).replace('.', ',') + '</td>';
+                        }
+
+                        row += '<td>' + (fournisseur.totalGeneral || 0).toFixed(2).replace('.', ',') + '</td>' +
+                            '</tr>';
+
+                        tableBody.append(row);
+                    });
+
+                    // Destroy the existing DataTable instance if it exists
+                    if ($.fn.DataTable.isDataTable('.table')) {
+                        $('.table').DataTable().destroy();
+                    }
+
+                    // Reinitialize DataTable
+                    table = $('.table').DataTable({
+                        language: {
+                            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json',
+                        },
+                    });
+                }
+            });
+        }
+
+        // Fetch initial data
+        var currentYear = $('#yearSelect').val();
+        fetchData(currentYear);
+
+        // Fetch data when the year is changed
+        $('#yearSelect').change(function() {
+            fetchData($(this).val());
+        });
+});
+
+</script>
+{% endblock %}

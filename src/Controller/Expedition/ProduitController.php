@@ -2,6 +2,7 @@
 
 namespace App\Controller\Expedition;
 
+use App\Service\BaseService;
 use App\Service\ProduitService;
 use App\Service\MessageService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -14,7 +15,9 @@ class ProduitController extends AbstractController
     private $ProduitService;
     private $messageService;
 
-    public function __construct(ProduitService $ProduitService, MessageService $messageService)
+    public function __construct(ProduitService $ProduitService, MessageService $messageService,
+    private BaseService $BaseService
+    )
     {
         $this->ProduitService = $ProduitService;
         $this->messageService = $messageService;
@@ -24,6 +27,13 @@ class ProduitController extends AbstractController
     public function index(): Response
     {
         $list = $this->ProduitService->getListProduit();
+        
+        $chckAccess = $this->BaseService->Role(118);
+        if($chckAccess == 0){
+            return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
+        }
 
         return $this->render('expedition/produit/list.html.twig', [
             'produits' => $list
@@ -33,6 +43,7 @@ class ProduitController extends AbstractController
     #[Route('/produit/listAjaxProduit', name: 'list_produit_ajax')]
     public function listAjaxProduit(): Response
     {
+
         $list = $this->ProduitService->getListProduit();
         $codeStatut = 'OK';
         $respObjects["data"] = $list;
@@ -46,6 +57,14 @@ class ProduitController extends AbstractController
     #[Route('/produit/add', name: 'add_produit')]
     public function addProduit(): Response
     {
+        
+        $chckAccess = $this->BaseService->Role(115);
+        if($chckAccess == 0){
+            return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
+        }
+
         return $this->render('expedition/produit/addProduit.html.twig', [
             'date' => new \DateTime('now')
         ]);
@@ -53,7 +72,15 @@ class ProduitController extends AbstractController
 
     #[Route('/produit/ajaxAddProduit', name: 'ajax_add_produit')]
     public function ajaxAddProduit(Request $request): Response
-    {
+        {
+            $chckAccess = $this->BaseService->Role(115);
+            if($chckAccess == 0){
+                return $this->json($this->BaseService->errorAccess());
+            }else if ($chckAccess == 2){
+                return $this->json($this->BaseService->errorAccess());
+            }
+
+
         $respObjects = [];
         $codeStatut = "";
 
@@ -79,6 +106,13 @@ class ProduitController extends AbstractController
     #[Route('/produit/update/{id}', name: 'update_produit')]
     public function updateProduit($id): Response
     {
+        $chckAccess = $this->BaseService->Role(116);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
+
         $produit = $this->ProduitService->getProduit($id);
 
         return $this->render('expedition/produit/updateProduit.html.twig', [
@@ -92,6 +126,13 @@ class ProduitController extends AbstractController
     {
         $respObjects = [];
         $codeStatut = "";
+
+        $chckAccess = $this->BaseService->Role(116);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
 
         $produit = $this->ProduitService->getProduit($id);
         $data = [
@@ -119,6 +160,13 @@ class ProduitController extends AbstractController
     {
         $respObjects = [];
         $codeStatut = "";
+        
+        $chckAccess = $this->BaseService->Role(117);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
 
         $produit = $this->ProduitService->getProduit($id);
 

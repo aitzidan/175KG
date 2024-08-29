@@ -2,6 +2,7 @@
 
 namespace App\Controller\Reglement;
 
+use App\Service\BaseService;
 use App\Service\ChequeService;
 use App\Service\MessageService;
 use App\Service\FournisseurService;
@@ -15,17 +16,27 @@ class ChequeController extends AbstractController
     private MessageService $MessageService;
     private ChequeService $ChequeService;
     private FournisseurService $FournisseurService;
+    private BaseService $BaseService;
 
-    public function __construct(MessageService $MessageService, ChequeService $ChequeService, FournisseurService $FournisseurService)
+    public function __construct(MessageService $MessageService, ChequeService $ChequeService, FournisseurService $FournisseurService, BaseService $BaseService)
     {
         $this->MessageService = $MessageService;
         $this->ChequeService = $ChequeService;
         $this->FournisseurService = $FournisseurService;
+        $this->BaseService = $BaseService;
     }
 
     #[Route('/cheque/list', name: 'list_cheque')]
     public function index(Request $request): Response
     {
+        
+        $chckAccess = $this->BaseService->Role(94);
+        if($chckAccess == 0){
+            return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
+        }
+    
         $list = $this->ChequeService->getListCheque();
 
         return $this->render('reglement/cheque/list.html.twig', [
@@ -36,6 +47,15 @@ class ChequeController extends AbstractController
     #[Route('/cheque/add', name: 'add_cheque')]
     public function addCheque(): Response
     {
+                
+        $chckAccess = $this->BaseService->Role(90);
+        if($chckAccess == 0){
+            return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
+        }
+    
+
         $listFournisseur = $this->FournisseurService->getListFournisseur();
 
         return $this->render('/reglement/cheque/addCheque.html.twig', [
@@ -48,6 +68,13 @@ class ChequeController extends AbstractController
     {
         $respObjects = [];
         $codeStatut = "";
+
+        $chckAccess = $this->BaseService->Role(90);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
 
         $data = [
             'numero' => $request->get('numero'),
@@ -77,6 +104,14 @@ class ChequeController extends AbstractController
     #[Route('/cheque/update/{id}', name: 'update_cheque')]
     public function updateCheque($id): Response
     {
+                
+        $chckAccess = $this->BaseService->Role(91);
+        if($chckAccess == 0){
+            return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
+        }
+    
         $cheque = $this->ChequeService->getCheque($id);
         $listFournisseur = $this->FournisseurService->getListFournisseur();
 
@@ -92,6 +127,13 @@ class ChequeController extends AbstractController
     {
         $respObjects = [];
         $codeStatut = "";
+
+        $chckAccess = $this->BaseService->Role(91);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
 
         $cheque = $this->ChequeService->getCheque($id);
         $data = [
@@ -123,9 +165,40 @@ class ChequeController extends AbstractController
         $respObjects = [];
         $codeStatut = "";
 
+        $chckAccess = $this->BaseService->Role(92);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
+
         $cheque = $this->ChequeService->getCheque($id);
         
         $this->ChequeService->deleteCheque($cheque);
+
+        $codeStatut = "OK";   
+    
+        $respObjects["codeStatut"] = $codeStatut;
+        $respObjects["message"] = $this->MessageService->checkMessage($codeStatut);
+        return $this->json($respObjects);
+    }
+
+    #[Route('/cheque/validate/{id}', name: 'ajax_validate_cheque')]
+    public function ajaxValidateCheque(Request $request, $id): Response
+    {
+        $respObjects = [];
+        $codeStatut = "";
+
+        $chckAccess = $this->BaseService->Role(93);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
+
+        $cheque = $this->ChequeService->getCheque($id);
+        
+        $this->ChequeService->validateCheque($cheque);
 
         $codeStatut = "OK";   
     
@@ -157,6 +230,13 @@ class ChequeController extends AbstractController
         $respObjects = [];
         $codeStatut = "ERROR"; // Default to error status
         
+        $chckAccess = $this->BaseService->Role(93);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
+
         // Decode the JSON payload from the request
         $data_list = json_decode($request->getContent(), true);
         $ids = $data_list['selectedIds'] ?? []; // Use null coalescing operator to handle missing 'selectedIds'

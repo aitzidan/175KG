@@ -311,5 +311,13 @@ class BaseService
     
         return isset($months[$month]) ? $months[$month] : null;
     }
+
+    public function errorAccess() {
+        $codeStatut = "ERROR_ACCESS";
+        $respObjects["codeStatut"] = $codeStatut;
+        $respObjects["message"] = "Vous n'avez pas l'autorisation d'accéder à cette ressource";
+        return $respObjects;
+    }
+    
     
 }

@@ -42,6 +42,9 @@ class CaisseMagasin
     #[ORM\Column]
     private ?float $ecart = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $etat = null;
+
 
     public function getId(): ?int
     {
@@ -151,6 +154,18 @@ class CaisseMagasin
     public function setEcart(float $ecart): static
     {
         $this->ecart = $ecart;
+
+        return $this;
+    }
+
+    public function getEtat(): ?int
+    {
+        return $this->etat;
+    }
+
+    public function setEtat(?int $etat): static
+    {
+        $this->etat = $etat;
 
         return $this;
     }

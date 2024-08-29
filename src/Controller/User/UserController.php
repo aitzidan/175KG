@@ -230,13 +230,7 @@ class UserController extends AbstractController
         $user = $entityManager->getRepository(User::class)->find($userId);
         $isConnected = $session->get('isConnected');
 
-        $authStatus = $this->BaseService->checkConnectionAndRole('UPDAUSER');
 
-        // if ($authStatus === 'NOT_CONNECTED') {
-        //     return $this->redirectToRoute('login');
-        // } elseif ($authStatus === 'NOT_ROLE') {
-        //     return $this->redirectToRoute('listUsers');
-        // }
         try {
 
             $response = "";
@@ -327,9 +321,9 @@ class UserController extends AbstractController
 
         $chckAccess = $this->BaseService->Role(63);
         if($chckAccess == 0){
-            return $this->json(['error' => $authStatus], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->json($this->BaseService->errorAccess());
         }else if ($chckAccess == 2){
-            return $this->json(['error' => $authStatus], Response::HTTP_INTERNAL_SERVER_ERROR);
+            return $this->json($this->BaseService->errorAccess());
         }
 
 
@@ -395,7 +389,12 @@ class UserController extends AbstractController
         $codeStatut = "";
         $response = "";
         $isConnected = $session->get('isConnected');
-        
+        $chckAccess = $this->BaseService->Role(65);
+        if($chckAccess == 0){
+            return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
+        }
         if($isConnected == false){
             return $this->redirectToRoute('login');
         }
@@ -462,8 +461,11 @@ class UserController extends AbstractController
 
         $isConnected = $session->get('isConnected');
         
-        if($isConnected == false){
+        $chckAccess = $this->BaseService->Role(66);
+        if($chckAccess == 0){
             return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
         }
 
         $userId = $session->get('user_id');
@@ -545,8 +547,11 @@ class UserController extends AbstractController
 
         $isConnected = $session->get('isConnected');
         
-        if($isConnected == false){
+        $chckAccess = $this->BaseService->Role(64);
+        if($chckAccess == 0){
             return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
         }
 
         $userId = $session->get('user_id');
@@ -578,16 +583,28 @@ class UserController extends AbstractController
         $session = new Session();
         $isConnected = $session->get('isConnected');
         
-        if($isConnected == false){
-            return $this->redirectToRoute('login');
-        }
+        // if($isConnected == false){
+        //     return $this->redirectToRoute('login');
+        // }
 
-        $authStatus = $this->BaseService->checkConnectionAndRole('REMOPROF');
+        // $authStatus = $this->BaseService->checkConnectionAndRole('REMOPROF');
         // if ($authStatus === 'NOT_CONNECTED') {
         //     return $this->json(['error' => $authStatus], Response::HTTP_INTERNAL_SERVER_ERROR);
         // } elseif ($authStatus === 'NOT_ROLE') {
         //     return $this->json(['error' => $authStatus], Response::HTTP_INTERNAL_SERVER_ERROR);
         // }
+
+        
+        $chckAccess = $this->BaseService->Role(67);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
+
+
+
+       
 
         try 
         {

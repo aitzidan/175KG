@@ -64,6 +64,7 @@ class CaisseService
         $caisse->setTpeNaps($data['tpe_naps']);
         $caisse->setEcart($data['ecart']);
         $caisse->setIdCaisse($caisseParam);
+        $caisse->setEtat(0);
     
         $this->em->persist($caisse);
     
@@ -339,9 +340,10 @@ class CaisseService
         $this->em->flush();
     }
 
-    
-    
-    
+    public function validateCaisse($caisse){
+        $caisse->setEtat(1);
+        $this->em->flush();
+    }
 
 
 }

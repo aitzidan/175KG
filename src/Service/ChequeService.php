@@ -69,6 +69,12 @@ class ChequeService
         $this->entityManager->flush();
     }
 
+    public function validateCheque(Cheque $cheque): void
+    {
+        $cheque->setEtat(1);
+        $this->entityManager->flush();
+    }
+
     public function getChequeByFournisseur(int $idFournisseur): array
     {
         return $this->entityManager->getRepository(Cheque::class)->findBy(['fournisseur' => $idFournisseur]);

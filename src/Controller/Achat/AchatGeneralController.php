@@ -26,7 +26,13 @@ class AchatGeneralController extends AbstractController
     #[Route('/achat-general/add', name: 'add_achat_general')]
     public function addAchatGeneral(): Response
     {
-        
+        $chckAccess = $this->BaseService->Role(69);
+        if($chckAccess == 0){
+            return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
+        }
+
         $category = $this->AchatGeneralService->getCategorie();
         $fournisseurs = $this->AchatGeneralService->getFournisseurs();
 
@@ -45,6 +51,13 @@ class AchatGeneralController extends AbstractController
     {
         $respObjects = [];
         $codeStatut = "";
+
+        $chckAccess = $this->BaseService->Role(69);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
 
         $data = [
             'date' => $request->get('date'),
@@ -74,6 +87,14 @@ class AchatGeneralController extends AbstractController
     #[Route('/achat-general/update/{id}', name: 'update_achat_general')]
     public function updateAchatGeneral($id): Response
     {
+        
+        $chckAccess = $this->BaseService->Role(70);
+        if($chckAccess == 0){
+            return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
+        }
+
         $achatGeneral = $this->AchatGeneralService->getAchatGeneralById($id);
         $category = $this->AchatGeneralService->getCategorie();
         $fournisseurs = $this->AchatGeneralService->getFournisseurs();
@@ -93,6 +114,13 @@ class AchatGeneralController extends AbstractController
     {
         $respObjects = [];
         $codeStatut = "";
+
+        $chckAccess = $this->BaseService->Role(70);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
 
         $achatGeneral = $this->AchatGeneralService->getAchatGeneralById($id);
         $data = [
@@ -125,6 +153,13 @@ class AchatGeneralController extends AbstractController
         $respObjects = [];
         $codeStatut = "";
 
+        $chckAccess = $this->BaseService->Role(71);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
+
         $achatGeneral = $this->AchatGeneralService->getAchatGeneralById($id);
         $this->AchatGeneralService->deleteAchatGeneral($achatGeneral);
 
@@ -139,6 +174,13 @@ class AchatGeneralController extends AbstractController
     public function listGeneral(Request $request): Response
     {
         $list = []; // Assuming this will be filled with your data
+
+        $chckAccess = $this->BaseService->Role(73);
+        if($chckAccess == 0){
+            return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
+        }
     
         $currentDate = new \DateTime();
         $currentDate->modify('first day of this month');
@@ -214,6 +256,29 @@ class AchatGeneralController extends AbstractController
             'fournisseurs'=>$fournisseurs,
             'fournisseur'=>$fournisseur
         ]);
+    }
+
+    #[Route('/achat-general/validate/{id}', name: 'ajax_validate_achat_general')]
+    public function ajaxValidateAchat(Request $request, $id): Response
+    {
+        $respObjects = [];
+        $codeStatut = "";
+
+        $chckAccess = $this->BaseService->Role(72);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
+
+        $achatGeneral = $this->AchatGeneralService->getAchatGeneralById($id);
+        $this->AchatGeneralService->validateAchatGeneral($achatGeneral);
+
+        $codeStatut = "OK";
+
+        $respObjects["codeStatut"] = $codeStatut;
+        $respObjects["message"] = $this->MessageService->checkMessage($codeStatut);
+        return $this->json($respObjects);
     }
 
 }

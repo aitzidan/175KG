@@ -30,6 +30,13 @@ class caisseController extends AbstractController
     public function index(Request $request): Response
     {
         $list = []; // Assuming this will be filled with your data
+        
+        $chckAccess = $this->BaseService->Role(78);
+        if($chckAccess == 0){
+            return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
+        }
     
         $currentDate = new \DateTime();
         $currentDate->modify('first day of this month');
@@ -105,6 +112,13 @@ class caisseController extends AbstractController
     #[Route('/caisse/add', name: 'add_caisse')]
     public function addCaisse(): Response
     {
+        $chckAccess = $this->BaseService->Role(74);
+        if($chckAccess == 0){
+            return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
+        }
+
         $listParam = $this->CaisseParamService->getListCaisse();
         return $this->render('caisse/addCaisse.html.twig', [
            'date'=>new \DateTime('now'),
@@ -117,6 +131,13 @@ class caisseController extends AbstractController
     {
         $respObjects = [];
         $codeStatut = "";
+
+        $chckAccess = $this->BaseService->Role(74);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
 
         $data = [
             'date' => $request->get('date'),
@@ -146,6 +167,13 @@ class caisseController extends AbstractController
     #[Route('/caisse/update/{id}', name: 'update_caisse')]
     public function updateCaisse($id): Response
     {
+        $chckAccess = $this->BaseService->Role(75);
+        if($chckAccess == 0){
+            return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
+        }
+
         $caisse = $this->CaisseService->getCaisse($id);
         $listParam = $this->CaisseParamService->getListCaisse();
 
@@ -161,6 +189,14 @@ class caisseController extends AbstractController
     {
         $respObjects = [];
         $codeStatut = "";
+
+        $chckAccess = $this->BaseService->Role(75);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
+
 
         $caisse = $this->CaisseService->getCaisse($id);
         $data = [
@@ -193,6 +229,14 @@ class caisseController extends AbstractController
         $respObjects = [];
         $codeStatut = "";
 
+        $chckAccess = $this->BaseService->Role(76);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
+
+
         $caisse = $this->CaisseService->getCaisse($id);
         
         $this->CaisseService->deleteCaisse($caisse);
@@ -203,6 +247,30 @@ class caisseController extends AbstractController
         $respObjects["message"] = $this->MessageService->checkMessage($codeStatut);
         return $this->json($respObjects);
     }
+
+    #[Route('/caisse/validate/{id}', name: 'ajax_validate_caisse')]
+    public function ajaxValidateCaisse(Request $request, $id): Response
+    {
+        $respObjects = [];
+        $codeStatut = "";
+
+        $chckAccess = $this->BaseService->Role(77);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
+
+        $caisse = $this->CaisseService->getCaisse($id);
+        
+        $this->CaisseService->validateCaisse($caisse);
+        $codeStatut = "OK";   
+    
+        $respObjects["codeStatut"] = $codeStatut;
+        $respObjects["message"] = $this->MessageService->checkMessage($codeStatut);
+        return $this->json($respObjects);
+    }
+
 
 
 

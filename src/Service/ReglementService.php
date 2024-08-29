@@ -75,6 +75,12 @@ class ReglementService
         $this->entityManager->flush();
     }
 
+    public function validateReglement(Reglement $cheque): void
+    {
+        $cheque->setEtat(1);
+        $this->entityManager->flush();
+    }
+
     public function getReglementByFournisseur(int $idFournisseur): array
     {
         return $this->entityManager->getRepository(Reglement::class)->findBy(['fournisseur' => $idFournisseur]);

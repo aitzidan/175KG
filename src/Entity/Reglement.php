@@ -44,6 +44,9 @@ class Reglement
     #[ORM\Column(length: 255)]
     private ?string $banque = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $etat = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -153,6 +156,18 @@ class Reglement
     public function setBanque(string $banque): static
     {
         $this->banque = $banque;
+
+        return $this;
+    }
+
+    public function getEtat(): ?int
+    {
+        return $this->etat;
+    }
+
+    public function setEtat(?int $etat): static
+    {
+        $this->etat = $etat;
 
         return $this;
     }

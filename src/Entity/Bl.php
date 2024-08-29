@@ -24,6 +24,9 @@ class Bl
     #[ORM\JoinColumn(nullable: false)]
     private ?Entity $entity = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $etat = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -61,6 +64,18 @@ class Bl
     public function setEntity(?entity $entity): static
     {
         $this->entity = $entity;
+
+        return $this;
+    }
+
+    public function getEtat(): ?int
+    {
+        return $this->etat;
+    }
+
+    public function setEtat(?int $etat): static
+    {
+        $this->etat = $etat;
 
         return $this;
     }

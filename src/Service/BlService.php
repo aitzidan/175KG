@@ -122,6 +122,12 @@ class BlService
         $this->em->flush();
     }
 
+    public function validateBl(Bl $bl): void
+    {
+        $bl->setEtat(1);
+        $this->em->flush();
+    }
+
     public function deleteDetail(DetailBl $bl): void
     {
         $this->em->remove($bl);

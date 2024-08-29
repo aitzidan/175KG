@@ -2,6 +2,7 @@
 
 namespace App\Controller\Reglement;
 
+use App\Service\BaseService;
 use App\Service\EntityService;
 use App\Service\ReglementService;
 use App\Service\MessageService;
@@ -17,18 +18,28 @@ class ReglementController extends AbstractController
     private ReglementService $ReglementService;
     private FournisseurService $FournisseurService;
     private EntityService $EntityService;
+    private BaseService $BaseService;
 
-    public function __construct(MessageService $MessageService, ReglementService $ReglementService, FournisseurService $FournisseurService, EntityService $EntityService)
+    public function __construct(MessageService $MessageService, ReglementService $ReglementService, FournisseurService $FournisseurService, EntityService $EntityService, BaseService $BaseService)
     {
         $this->MessageService = $MessageService;
         $this->ReglementService = $ReglementService;
         $this->FournisseurService = $FournisseurService;
         $this->EntityService = $EntityService;
+        $this->BaseService = $BaseService;
     }
 
     #[Route('/reglement/list', name: 'list_reglement')]
     public function index(Request $request): Response
     {
+        
+        $chckAccess = $this->BaseService->Role(89);
+        if($chckAccess == 0){
+            return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
+        }
+
         $list = $this->ReglementService->getListReglement();
 
         return $this->render('reglement/reglement/list.html.twig', [
@@ -39,6 +50,13 @@ class ReglementController extends AbstractController
     #[Route('/reglement/add', name: 'add_reglement')]
     public function addReglement(): Response
     {
+        $chckAccess = $this->BaseService->Role(85);
+        if($chckAccess == 0){
+            return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
+        }
+
         $listFournisseur = $this->FournisseurService->getListFournisseur();
         $listEntity = $this->EntityService->getListEntity();
         
@@ -54,6 +72,15 @@ class ReglementController extends AbstractController
     {
         $respObjects = [];
         $codeStatut = "";
+        
+
+        $chckAccess = $this->BaseService->Role(85);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
+
 
         $data = [
             'numero' => $request->get('numero'),
@@ -85,6 +112,14 @@ class ReglementController extends AbstractController
     #[Route('/reglement/update/{id}', name: 'update_reglement')]
     public function updateReglement($id): Response
     {
+
+        $chckAccess = $this->BaseService->Role(86);
+        if($chckAccess == 0){
+            return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
+        }
+
         $reglement = $this->ReglementService->getReglement($id);
         $listFournisseur = $this->FournisseurService->getListFournisseur();
         $listEntity = $this->EntityService->getListEntity();
@@ -102,6 +137,14 @@ class ReglementController extends AbstractController
     {
         $respObjects = [];
         $codeStatut = "";
+
+        $chckAccess = $this->BaseService->Role(86);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
+
 
         $reglement = $this->ReglementService->getReglement($id);
         $data = [
@@ -135,9 +178,42 @@ class ReglementController extends AbstractController
         $respObjects = [];
         $codeStatut = "";
 
+        $chckAccess = $this->BaseService->Role(87);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
+
+
         $reglement = $this->ReglementService->getReglement($id);
         
         $this->ReglementService->deleteReglement($reglement);
+
+        $codeStatut = "OK";   
+    
+        $respObjects["codeStatut"] = $codeStatut;
+        $respObjects["message"] = $this->MessageService->checkMessage($codeStatut);
+        return $this->json($respObjects);
+    }
+
+    #[Route('/reglement/validate/{id}', name: 'ajax_validate_reglement')]
+    public function ajaxValidateReglement(Request $request, $id): Response
+    {
+        $respObjects = [];
+        $codeStatut = "";
+
+        $chckAccess = $this->BaseService->Role(88);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
+
+
+        $reglement = $this->ReglementService->getReglement($id);
+        
+        $this->ReglementService->validateReglement($reglement);
 
         $codeStatut = "OK";   
     

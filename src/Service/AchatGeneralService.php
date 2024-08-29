@@ -64,6 +64,7 @@ class AchatGeneralService
         $achatGeneral->setQte($data['qte']);
         $achatGeneral->setPrix($data['prix']);
         $achatGeneral->setMontant($data['montant']);
+        $achatGeneral->setEtat(0);
 
         $this->em->persist($achatGeneral);
         $this->em->flush();
@@ -252,6 +253,12 @@ class AchatGeneralService
     }
     public function getOneDesignation($id){
         return $this->designationRepo->find($id);
+    }
+
+    public function validateAchatGeneral($achatGeneral)
+    {
+        $achatGeneral->setEtat(1);
+        $this->em->flush();
     }
 
 

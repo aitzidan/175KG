@@ -26,6 +26,14 @@ class EntityController extends AbstractController
     #[Route('/entity/list', name: 'list_entity')]
     public function index(Request $request): Response
     {
+        $chckAccess = $this->BaseService->Role(114);
+        if($chckAccess == 0){
+            return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
+        }
+
+
         $list = $this->EntityService->getListEntity();
     
         return $this->render('entity/list.html.twig', [
@@ -36,6 +44,14 @@ class EntityController extends AbstractController
     #[Route('/entity/add', name: 'add_entity')]
     public function addEntity(): Response
     {
+        $chckAccess = $this->BaseService->Role(111);
+        if($chckAccess == 0){
+            return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
+        }
+
+
         return $this->render('entity/addEntity.html.twig', [
            'date' => new \DateTime('now')
         ]);
@@ -46,6 +62,13 @@ class EntityController extends AbstractController
     {
         $respObjects = [];
         $codeStatut = "";
+
+        $chckAccess = $this->BaseService->Role(111);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
 
         $data = [
             'entity' => $request->get('entity'),
@@ -67,6 +90,15 @@ class EntityController extends AbstractController
     #[Route('/entity/update/{id}', name: 'update_entity')]
     public function updateEntity($id): Response
     {
+
+        $chckAccess = $this->BaseService->Role(112);
+        if($chckAccess == 0){
+            return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
+        }
+
+
         $entity = $this->EntityService->getEntity($id);
 
         return $this->render('/entity/updateEntity.html.twig', [
@@ -78,8 +110,17 @@ class EntityController extends AbstractController
     #[Route('/entity/ajaxUpdateEntity/{id}', name: 'ajax_update_entity')]
     public function ajaxUpdateEntity(Request $request, $id): Response
     {
+        $chckAccess = $this->BaseService->Role(112);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
+
         $respObjects = [];
         $codeStatut = "";
+
+       
 
         $entity = $this->EntityService->getEntity($id);
         $data = [
@@ -102,6 +143,13 @@ class EntityController extends AbstractController
     #[Route('/entity/delete/{id}', name: 'ajax_delete_entity')]
     public function ajaxDeleteEntity(Request $request, $id): Response
     {
+        $chckAccess = $this->BaseService->Role(113);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
+
         $respObjects = [];
         $codeStatut = "";
 

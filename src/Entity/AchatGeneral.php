@@ -41,6 +41,9 @@ class AchatGeneral
     #[ORM\JoinColumn(nullable: false)]
     private ?Designation $idDesignation = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $etat = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -138,6 +141,18 @@ class AchatGeneral
     public function setIdDesignation(?Designation $idDesignation): static
     {
         $this->idDesignation = $idDesignation;
+
+        return $this;
+    }
+
+    public function getEtat(): ?int
+    {
+        return $this->etat;
+    }
+
+    public function setEtat(?int $etat): static
+    {
+        $this->etat = $etat;
 
         return $this;
     }

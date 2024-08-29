@@ -30,7 +30,14 @@ class DesignationController extends AbstractController
     public function index(Request $request): Response
     {
         $list = []; // Assuming this will be filled with your data
-    
+        
+        $chckAccess = $this->BaseService->Role(102);
+        if($chckAccess == 0){
+            return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
+        }
+
         $list = $this->DesignationService->getListDesignation();
 
     
@@ -43,6 +50,13 @@ class DesignationController extends AbstractController
     public function addDesignation(): Response
     {
         $listCategorie =  $this->CategorieService->getListCategorie();
+        
+        $chckAccess = $this->BaseService->Role(99);
+        if($chckAccess == 0){
+            return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
+        }
 
         return $this->render('designation/addDesignation.html.twig', [
            'listCategorie'=>$listCategorie
@@ -54,6 +68,13 @@ class DesignationController extends AbstractController
     {
         $respObjects = [];
         $codeStatut = "";
+
+        $chckAccess = $this->BaseService->Role(99);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
 
         $data = [
             'designation' => $request->get('designation'),
@@ -78,6 +99,14 @@ class DesignationController extends AbstractController
     {
         $designation = $this->DesignationService->getDesignation($id);
         $listCategorie =  $this->CategorieService->getListCategorie();
+       
+        $chckAccess = $this->BaseService->Role(100);
+        if($chckAccess == 0){
+            return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
+        }
+
 
         return $this->render('/designation/updateDesignation.html.twig', [
            'designation'=>$designation,
@@ -91,6 +120,13 @@ class DesignationController extends AbstractController
     {
         $respObjects = [];
         $codeStatut = "";
+
+        $chckAccess = $this->BaseService->Role(100);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
 
         $designation = $this->DesignationService->getDesignation($id);
         $data = [
@@ -116,6 +152,13 @@ class DesignationController extends AbstractController
     {
         $respObjects = [];
         $codeStatut = "";
+
+        $chckAccess = $this->BaseService->Role(101);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
 
         $designation = $this->DesignationService->getDesignation($id);
         

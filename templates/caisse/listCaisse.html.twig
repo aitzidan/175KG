@@ -205,6 +205,10 @@
                                         <td>
                                             <a href='/caisse/update/{{u.id}}/' class="btn btn-primary" > Voir
                                             </a>
+                                             {% if u.etat == 0 %}
+                                            <a class="btn btn-success" style="color:white" title="Valider" onclick='confirmValidation({{u.id}})'>Valider
+                                            </a>
+                                            {% endif %}
                                             <a class="btn btn-danger" style="color:white" title="Supprimer" onclick='confirmDelete({{u.id}})'>Supprimer
                                             </a>
                                         </td>
@@ -224,8 +228,7 @@
 <script>
         function confirmDelete(id) {
         Swal.fire({
-            title: "Êtes-vous sûr ?",
-            text: "Si ce profil est actuellement associé à des utilisateurs, ces utilisateurs perdront ce profil",
+            title: "Êtes-vous sûr de vouloir valider cette opération ?",
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#d33",
@@ -238,6 +241,46 @@
 
                 $.ajax({
                     url: "/caisse/deleteCaisse/"+id,
+                    type: "POST",
+                    data: {id: id},
+                    success: function(data) {
+                        if(data.codeStatut == 'OK') {
+                            window.location.reload();
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Oops...',
+                                text: data.message,
+                            });
+                        }
+                    },
+                    error: function(xhr, ajaxOptions, thrownError) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops...',
+                            text: "une erreur s'est produite",
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    function confirmValidation(id) {
+        Swal.fire({
+            title: "Êtes-vous sûr de vouloir valider cette opération ?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Valider",
+            cancelButtonText: "Annuler",
+        }).then((result) => {
+
+            if (result.isConfirmed) {
+
+                $.ajax({
+                    url: "/caisse/validate/"+id,
                     type: "POST",
                     data: {id: id},
                     success: function(data) {

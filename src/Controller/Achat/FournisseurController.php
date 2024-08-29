@@ -16,7 +16,9 @@ class FournisseurController extends AbstractController
     private BaseService $baseService;
     private FournisseurService $fournisseurService;
 
-    public function __construct(MessageService $messageService, BaseService $baseService, FournisseurService $fournisseurService)
+    public function __construct(
+        private BaseService $BaseService ,
+    MessageService $messageService, BaseService $baseService, FournisseurService $fournisseurService)
     {
         $this->messageService = $messageService;
         $this->baseService = $baseService;
@@ -26,6 +28,14 @@ class FournisseurController extends AbstractController
     #[Route('/fournisseur/list', name: 'list_fournisseur')]
     public function index(Request $request): Response
     {
+        
+        $chckAccess = $this->BaseService->Role(106);
+        if($chckAccess == 0){
+            return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
+        }
+
         $list = $this->fournisseurService->getListFournisseur();
         return $this->render('fournisseur/list.html.twig', [
             'fournisseur' => $list
@@ -35,6 +45,14 @@ class FournisseurController extends AbstractController
     #[Route('/fournisseur/add', name: 'add_fournisseur')]
     public function addFournisseur(): Response
     {
+        
+        $chckAccess = $this->BaseService->Role(103);
+        if($chckAccess == 0){
+            return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
+        }
+
         return $this->render('fournisseur/addFournisseur.html.twig', [
             'date' => new \DateTime('now')
         ]);
@@ -45,6 +63,13 @@ class FournisseurController extends AbstractController
     {
         $respObjects = [];
         $codeStatut = "";
+
+        $chckAccess = $this->BaseService->Role(103);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
 
         $data = [
             'rs' => $request->get('rs'),
@@ -73,6 +98,14 @@ class FournisseurController extends AbstractController
     #[Route('/fournisseur/update/{id}', name: 'update_fournisseur')]
     public function updateFournisseur($id): Response
     {
+        
+        $chckAccess = $this->BaseService->Role(104);
+        if($chckAccess == 0){
+            return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
+        }
+
         $fournisseur = $this->fournisseurService->getFournisseur($id);
 
         return $this->render('fournisseur/updateFournisseur.html.twig', [
@@ -86,6 +119,13 @@ class FournisseurController extends AbstractController
     {
         $respObjects = [];
         $codeStatut = "";
+
+        $chckAccess = $this->BaseService->Role(104);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
 
         $fournisseur = $this->fournisseurService->getFournisseur($id);
         $data = [
@@ -118,12 +158,33 @@ class FournisseurController extends AbstractController
         $respObjects = [];
         $codeStatut = "";
 
+        $chckAccess = $this->BaseService->Role(105);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
+
         $fournisseur = $this->fournisseurService->getFournisseur($id);
 
         $this->fournisseurService->deleteFournisseur($fournisseur);
 
         $codeStatut = "OK";
 
+        $respObjects["codeStatut"] = $codeStatut;
+        $respObjects["message"] = $this->messageService->checkMessage($codeStatut);
+        return $this->json($respObjects);
+    }
+
+    #[Route('/fournisseur/listAjaxFournisseur', name: 'listAjaxFournisseur')]
+    public function listAjaxFournisseur(): Response
+    {
+        
+        
+        $codeStatut = "OK";
+        
+        $data = $this->fournisseurService->getListFournisseur();
+        $respObjects['data'] = $data;
         $respObjects["codeStatut"] = $codeStatut;
         $respObjects["message"] = $this->messageService->checkMessage($codeStatut);
         return $this->json($respObjects);

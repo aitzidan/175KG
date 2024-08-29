@@ -26,6 +26,13 @@ class CategorieController extends AbstractController
     #[Route('/categorie/list', name: 'list_categorie')]
     public function index(Request $request): Response
     {
+        $chckAccess = $this->BaseService->Role(98);
+        if($chckAccess == 0){
+            return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
+        }
+
         $list = []; // Assuming this will be filled with your data
     
         $list = $this->CategorieService->getListCategorie();
@@ -39,6 +46,14 @@ class CategorieController extends AbstractController
     #[Route('/categorie/add', name: 'add_categorie')]
     public function addCategorie(): Response
     {
+        $chckAccess = $this->BaseService->Role(95);
+        
+        if($chckAccess == 0){
+            return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
+        }
+
         return $this->render('categorie/addCategorie.html.twig', [
            'date'=>new \DateTime('now')
         ]);
@@ -49,6 +64,13 @@ class CategorieController extends AbstractController
     {
         $respObjects = [];
         $codeStatut = "";
+
+        $chckAccess = $this->BaseService->Role(95);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
 
         $data = [
             'categorie' => $request->get('categorie'),
@@ -70,6 +92,13 @@ class CategorieController extends AbstractController
     #[Route('/categorie/update/{id}', name: 'update_categorie')]
     public function updateCategorie($id): Response
     {
+        $chckAccess = $this->BaseService->Role(96);
+        if($chckAccess == 0){
+            return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
+        }
+
         $categorie = $this->CategorieService->getCategorie($id);
 
         return $this->render('/categorie/updateCategorie.html.twig', [
@@ -83,6 +112,13 @@ class CategorieController extends AbstractController
     {
         $respObjects = [];
         $codeStatut = "";
+
+        $chckAccess = $this->BaseService->Role(96);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
 
         $categorie = $this->CategorieService->getCategorie($id);
         $data = [
@@ -107,6 +143,13 @@ class CategorieController extends AbstractController
     {
         $respObjects = [];
         $codeStatut = "";
+
+        $chckAccess = $this->BaseService->Role(97);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
 
         $categorie = $this->CategorieService->getCategorie($id);
         

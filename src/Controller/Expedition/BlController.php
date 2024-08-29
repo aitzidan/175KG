@@ -2,6 +2,7 @@
 
 namespace App\Controller\Expedition;
 
+use App\Service\BaseService;
 use App\Service\BlService;
 use App\Service\EntityService;
 use App\Service\MessageService;
@@ -16,17 +17,26 @@ class BlController extends AbstractController
     private $blService;
     private $messageService;
     private $EntityService;
+    private BaseService $BaseService;
 
-    public function __construct(BlService $blService, MessageService $messageService, EntityService $EntityService)
+    public function __construct(BlService $blService, MessageService $messageService, EntityService $EntityService, BaseService $BaseService)
     {
         $this->blService = $blService;
         $this->messageService = $messageService;
         $this->EntityService = $EntityService;
+        $this->BaseService = $BaseService;
     }
 
     #[Route('/bl/list', name: 'list_bl')]
     public function index(): Response
     {
+        $chckAccess = $this->BaseService->Role(83);
+        if($chckAccess == 0){
+            return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
+        }
+    
         $list = $this->blService->getListBl();
         return $this->render('expedition/bl/list.html.twig', [
             'bls' => $list
@@ -36,6 +46,14 @@ class BlController extends AbstractController
     #[Route('/bl/add', name: 'add_bl')]
     public function addBl(): Response
     {
+
+        $chckAccess = $this->BaseService->Role(79);
+        if($chckAccess == 0){
+            return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
+        }
+
         $list = $this->EntityService->getListEntity();
         $data = new \DateTime('now');
         $numero = 'BL-'.$this->blService->findMaxBl().'/'.$data->format('Y');
@@ -52,6 +70,14 @@ class BlController extends AbstractController
     {
         $respObjects = [];
         $codeStatut = "";
+
+        $chckAccess = $this->BaseService->Role(79);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
+
 
         $data = [
             'date' => $request->get('date'),
@@ -80,7 +106,6 @@ class BlController extends AbstractController
                 }
             }
     
-            $respObjects["data"] = $listIdProduit;
     
             if (!$checkData || !$checkDataDetails) {
                 $codeStatut = 'ERREUR-PARAMS-VIDE';
@@ -106,6 +131,15 @@ class BlController extends AbstractController
     #[Route('/bl/update/{id}', name: 'update_bl')]
     public function updateBl($id): Response
     {
+        
+        $chckAccess = $this->BaseService->Role(80);
+        if($chckAccess == 0){
+            return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
+        }
+
+
         $bl = $this->blService->getBl($id);
 
         $list = $this->EntityService->getListEntity();
@@ -122,6 +156,15 @@ class BlController extends AbstractController
     {
         $respObjects = [];
         $codeStatut = "";
+
+        $chckAccess = $this->BaseService->Role(80);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
+
+
 
         $bl = $this->blService->getBl($id);
         $data = [
@@ -177,6 +220,14 @@ class BlController extends AbstractController
         $respObjects = [];
         $codeStatut = "";
 
+        $chckAccess = $this->BaseService->Role(81);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
+
+
         $bl = $this->blService->getBl($id);
 
         if ($bl) {
@@ -211,7 +262,16 @@ class BlController extends AbstractController
     #[Route('/bl/pdf/{id}/', name: 'pdfBl')]
     public function pdfBl( $id)
     {
-        
+                
+        $chckAccess = $this->BaseService->Role(83);
+        if($chckAccess == 0){
+            return $this->redirectToRoute('login');
+        }else if ($chckAccess == 2){
+            return $this->redirectToRoute('listUsers');
+        }
+
+
+
         $bl = $this->blService->getBl($id);
 
         $listBl = $this->blService->getDetailsBl($id);
@@ -236,6 +296,33 @@ class BlController extends AbstractController
         $response->headers->set('Content-Disposition', 'inline; filename=bon_commande.pdf');
 
         return $response;
-
     }
+
+    #[Route('/bl/validate/{id}', name: 'ajax_validate_bl')]
+    public function ajaxValidateBl($id): Response
+    {
+        $respObjects = [];
+        $codeStatut = "";
+
+        $chckAccess = $this->BaseService->Role(82);
+        if($chckAccess == 0){
+            return $this->json($this->BaseService->errorAccess());
+        }else if ($chckAccess == 2){
+            return $this->json($this->BaseService->errorAccess());
+        }
+
+        $bl = $this->blService->getBl($id);
+
+        if ($bl) {
+            $this->blService->deleteBl($bl);
+            $codeStatut = "OK";
+        } else {
+            $codeStatut = "ERREUR-BL-INEXISTANT";
+        }
+
+        $respObjects["codeStatut"] = $codeStatut;
+        $respObjects["message"] = $this->messageService->checkMessage($codeStatut);
+        return $this->json($respObjects);
+    }
+
 }

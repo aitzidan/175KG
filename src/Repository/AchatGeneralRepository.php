@@ -15,12 +15,13 @@ use Doctrine\Persistence\ManagerRegistry;
 class AchatGeneralRepository extends ServiceEntityRepository
 {
     
-
+    private $connection;
     public $em;
     public function __construct(ManagerRegistry $registry , EntityManagerInterface $em )
     {
         parent::__construct($registry, AchatGeneral::class);
         $this->em = $em;
+        $this->connection = $this->getEntityManager()->getConnection();
     }
 
 
@@ -48,6 +49,41 @@ class AchatGeneralRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
-  
+    
+    // public function findByMonthYearAndFournisseur($month, $year, $fournisseurId)
+    // {
+    //     $sql = '
+    //         SELECT id, categorie_id, id_fournisseur_id, date, unite, qte, prix, montant, id_designation_id, etat
+    //         FROM achat_general
+    //         WHERE MONTH(date) = :month
+    //         AND YEAR(date) = :year
+    //         AND id_fournisseur_id = :fournisseurId
+    //     ';
+
+    //     $stmt = $this->connection->prepare($sql);
+    //     $res = $stmt->executeQuery([
+    //         'month' => $month,
+    //         'year' => $year,
+    //         'fournisseurId' => $fournisseurId
+    //     ]);
+
+    //     return $res->fetchAllAssociative();
+    // }
+   
+
+    public function findByMonthYearAndFournisseur($month, $year, $fournisseurId)
+    {
+        return $this->createQueryBuilder('a')
+            ->where('MONTH(a.date) = :month')
+            ->andWhere('YEAR(a.date) = :year')
+            ->andWhere('a.id_fournisseur_id = :fournisseurId')
+            ->setParameter('month', $month)
+            ->setParameter('year', $year)
+            ->setParameter('fournisseurId', $fournisseurId)
+            ->getQuery()
+            ->getResult();
+    }
+
+
 
 }
