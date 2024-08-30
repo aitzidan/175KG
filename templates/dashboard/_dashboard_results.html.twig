@@ -1,0 +1,37 @@
+<style>
+
+</style>
+<table class="display table table-striped table-hover">
+    <thead>
+        <tr>
+            <th style="font-size: larger;">Fournisseur</th>
+            <th style="font-size: larger;">Catégorie</th>
+            <th style="font-size: larger;">Désignation</th>
+            <th style="font-size: larger;">Montant</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for achat in achat %}
+            <tr>
+                <td>{{ achat.id_fournisseur_id }}</td>
+                <td>{{ achat.categorie_id }}</td>
+                <td>{{ achat.designation }}</td>
+                <td class="text-primary">{{ achat.montant }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<p style="font-size: x-large;font-weight: 600;">Total Montant: {{ montant }}</p>
+
+<script>
+      $(document).ready(function() {
+table = $('.table').DataTable({
+                    language: {
+                        url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json',
+                    },
+                });
+      })
+
+
+</script>

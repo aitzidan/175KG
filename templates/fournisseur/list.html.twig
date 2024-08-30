@@ -116,7 +116,7 @@
             if (result.isConfirmed) {
                 $.ajax({
                     type: "DELETE",
-                    url: "/fournisseur/ajaxDeleteFournisseur/" + id,
+                    url: "/fournisseur/delete/" + id,
                     success: function(data) {
                         if (data.codeStatut == "OK") {
                             location.reload();

@@ -81,13 +81,19 @@ class FournisseurController extends AbstractController
             'ice' => $request->get('ice'),
             'rc' => $request->get('rc')
         ];
-        $checkData = $this->fournisseurService->checkData($data);
 
-        if (!$checkData) {
-            $codeStatut = 'ERREUR-PARAMS-VIDE';
+        if (!preg_match('/^\+?[0-9\s\-]+$/', $data['telephone'])) {
+            $codeStatut = 'ERREUR-TELEPHONE-INVALID';
         } else {
-            $this->fournisseurService->addFournisseur($data);
-            $codeStatut = "OK";
+
+            $checkData = $this->fournisseurService->checkData($data);
+    
+            if (!$checkData) {
+                $codeStatut = 'ERREUR-PARAMS-VIDE';
+            } else {
+                $this->fournisseurService->addFournisseur($data);
+                $codeStatut = "OK";
+            }
         }
 
         $respObjects["codeStatut"] = $codeStatut;
@@ -139,13 +145,21 @@ class FournisseurController extends AbstractController
             'rc' => $request->get('rc')
         ];
 
-        $checkData = $this->fournisseurService->checkData($data);
-        if (!$checkData) {
-            $codeStatut = 'ERREUR-PARAMS-VIDE';
+          // Validate telephone number
+        if (!preg_match('/^\+?[0-9\s\-]+$/', $data['telephone'])) {
+            $codeStatut = 'ERREUR-TELEPHONE-INVALID';
         } else {
-            $this->fournisseurService->saveFournisseur($data, $fournisseur);
-            $codeStatut = "OK";
+            // Validate other data
+            $checkData = $this->fournisseurService->checkData($data);
+            if (!$checkData) {
+                $codeStatut = 'ERREUR-PARAMS-VIDE';
+            } else {
+                // Save fournisseur
+                $this->fournisseurService->saveFournisseur($data, $fournisseur);
+                $codeStatut = "OK";
+            }
         }
+
 
         $respObjects["codeStatut"] = $codeStatut;
         $respObjects["message"] = $this->messageService->checkMessage($codeStatut);

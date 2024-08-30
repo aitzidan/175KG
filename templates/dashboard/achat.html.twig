@@ -44,17 +44,13 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-header justify-content-between">
-                        <div class="card-title">Tableau de bord fournisseur</div>
+                        <div class="card-title ">Tableau des achats de : <span class="text-primary">{{fournisseur.rs}}</span></div>
                     </div>
 
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-4">
-                                <select id="yearSelect" class="form-select">
-                                    {# {% for year in years %}
-                                        <option value="{{ year }}" {% if year == currentYear %}selected{% endif %}>{{ year }}</option>
-                                    {% endfor %} #}
-                                </select>
+                               
                             </div>
                         </div>
 
@@ -62,20 +58,36 @@
                             <table class="display table table-striped table-hover">
                                 <thead>
                                     <tr>
+                                        <th>Date</th>
+                                        <th>Catégorie</th>
+                                        <th>Désignation</th>
                                         <th>Fournisseur</th>
-                                        {% for month in 1..12 %}
-                                            <th>{{ month  }}</th>
-                                        {% endfor %}
-                                        <th>Total Annuel</th>
+                                        <th>Unité</th>
+                                        <th>Quantité</th>
+
+                                        <th>Prix</th>
+                                        <th>Montant</th>
                                     </tr>
                                 </thead>
-                                <tbody id="fournisseurTableBody">
-                                    <!-- Data will be loaded here via AJAX -->
+                                <tbody>
+                                    {% for u in data %}
+                                    <tr>
+                                        <td>{{ u.date | date('Y-m-d') }}</td>
+                                        <td>{{ u.categorie.categorie }}</td>
+                                        <td>{{ u.idDesignation.designation   }}</td>
+                                        <td>{{ fournisseur.rs}}</td>
+                                        <td>{{ u.unite }}</td>
+                                        <td>{{ u.qte }}</td>
+                                        <td>{{ u.prix }}</td>
+                                        <td>{{ u.montant }}</td>
+                                    {% endfor %}
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
+
+                
             </div>
         </div>
     </div>
@@ -84,57 +96,12 @@
 
 {% block javascripts %}
 <script>
-   $(document).ready(function() {
-        var table;
-
-        function fetchData(year) {
-            $.ajax({
-                url: '{{ path('api_getDataFournisseur') }}',
-                method: 'GET',
-                dataType: 'json',
-                data: { year: year },
-                success: function(data) {
-                    var tableBody = $('#fournisseurTableBody');
-                    tableBody.empty(); // Clear existing data
-
-                    data.forEach(function(fournisseur) {
-                        var row = '<tr>' +
-                            '<td>' + fournisseur.rs + '</td>';
-
-                        for (var month = 1; month <= 12; month++) {
-                            row += '<td> ' + (fournisseur.monthlyTotals[month] || 0).toFixed(2).replace('.', ',') + '</td>';
-                        }
-
-                        row += '<td>' + (fournisseur.totalGeneral || 0).toFixed(2).replace('.', ',') + '</td>' +
-                            '</tr>';
-
-                        tableBody.append(row);
-                    });
-
-                    // Destroy the existing DataTable instance if it exists
-                    if ($.fn.DataTable.isDataTable('.table')) {
-                        $('.table').DataTable().destroy();
-                    }
-
-                    // Reinitialize DataTable
-                    table = $('.table').DataTable({
-                        language: {
-                            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json',
-                        },
-                    });
-                }
-            });
-        }
-
-        // Fetch initial data
-        var currentYear = $('#yearSelect').val();
-        fetchData(currentYear);
-
-        // Fetch data when the year is changed
-        $('#yearSelect').change(function() {
-            fetchData($(this).val());
-        });
-});
-
+        $(document).ready(function() {
+table = $('.table').DataTable({
+                    language: {
+                        url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json',
+                    },
+                });
+      })
 </script>
 {% endblock %}

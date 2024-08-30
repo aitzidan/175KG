@@ -81,17 +81,19 @@
                                         <input type="date" class="form-control" id="date_debut" name="date_debut" value="{{ date_debut }}">
                                     </div>
                                     <label class="col-sm-2 col-form-label">Date fin :</label>
-                                    <div class="col-sm-4">
+                                    <div class="col-sm-3">
                                         <input type="date" class="form-control" id="date_fin" name="date_fin" value="{{ date_fin }}">
                                     </div>
-                                    
+                                    <div class="col-sm-2">
+                                        <button type="submit" class="btn btn-primary w-100">Filtrer</button>
+                                    </div>
                                 </div>
                             </div>
 
                             <div id="year_filter" class="filter-group" style="display:none;">
                                 <div class="form-group row">
                                     <label class="col-sm-2 col-form-label">Année :</label>
-                                    <div class="col-sm-4">
+                                    <div class="col-sm-3">
                                         <select class="form-control" id="annee" name="annee" onchange="updateMonthOptions()">
                                             {% for year in list_years %}
                                                 <option value="{{ year }}" {% if year == currentYear %}selected{% endif %}>{{ year }}</option>
@@ -100,10 +102,13 @@
                                     </div>
 
                                     <label class="col-sm-2 col-form-label">Mois :</label>
-                                    <div class="col-sm-4">
+                                    <div class="col-sm-3">
                                         <select class="form-control" id="mois" name="mois">
                                             {# This will be dynamically updated based on the selected year #}
                                         </select>
+                                    </div>
+                                     <div class="col-sm-2">
+                                        <button type="submit" class="btn btn-primary w-100">Filtrer</button>
                                     </div>
                                 </div>
                             </div>
@@ -111,18 +116,16 @@
                             
                             <div class="filter-group" >
                                 <div class="form-group row">
-                                    <label class="col-sm-2 col-form-label">Fournisseur :</label>
+                                    {# <label class="col-sm-2 col-form-label">Fournisseur :</label>
                                     <div class="col-sm-8">
                                          <select class="form-control" id="annee" name="annee" onchange="updateMonthOptions()">
                                             {% for year in fournisseurs %}
                                                 <option value="{{ year.id }}" {% if year.id == fournisseur %}selected{% endif %}>{{ year.rs }}</option>
                                             {% endfor %}
                                         </select>
-                                    </div>
+                                    </div> #}
 
-                                    <div class="col-sm-2">
-                                        <button type="submit" class="btn btn-primary w-100">Filtrer</button>
-                                    </div>
+                                    
                                 </div>
                             </div>
 
@@ -145,6 +148,7 @@
                                         <th>Désignation</th>
                                         <th>Fournisseur</th>
                                         <th>Unité</th>
+                                        <th>Quantité</th>
                                         <th>Prix</th>
                                         <th>Montant</th>
                                         <th>Action</th>
@@ -203,7 +207,7 @@
             yearFilter.style.display = 'block';
         }
     });
-        document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function () {
         const filterDateRadio = document.getElementById('filter_date');
         const filterYearRadio = document.getElementById('filter_year');
         const dateFilter = document.getElementById('date_filter');

@@ -32,7 +32,7 @@ class RevientService
     public function checkData($data): bool
     {
         // Check if all required fields are present and not empty
-        foreach (['nom_produit', 'nombre_unite', 'total_ht', 'prix_revient_ht', 'prix_vente_ht', 'marge_brute', 'taux_marge', 'coefficient_marge'] as $field) {
+        foreach (['nom_produit', 'nombre_unite','prix_vente_ht'] as $field) {
             if (empty($data[$field])) {
                 return false;
             }
@@ -89,21 +89,45 @@ class RevientService
         return $revient;
     }
 
-    public function saveRevient($data, $details,?Revient $revient = null): Revient
+    public function saveRevient($data, $details,Revient $revient = null): Revient
     {
         if ($revient === null) {
             $revient = new Revient();
         }
-
+       
         // Set data to the Revient entity
         $revient->setNomProduit($data['nom_produit']);
         $revient->setNombreUnite($data['nombre_unite']);
         $revient->setTotalHt($data['total_ht']);
-        $revient->setPrixHt($data['prix_ht']);
+        $revient->setPrixHt($data['prix_revient_ht']);
         $revient->setPrixVenteHt($data['prix_vente_ht']);
         $revient->setMargeBrute($data['marge_brute']);
         $revient->setTauxMarge($data['taux_marge']);
         $revient->setCoefficientMarge($data['coefficient_marge']);
+
+        $detailsRevient = $this->getDetailsRevient($revient->getId());
+        foreach ($detailsRevient as $item) {
+            # code...
+            $this->deleteDetailRevient($item);
+        }
+
+        for ($i=0; $i <count($details) ; $i++) { 
+            
+            $detail = new DetailRevient();
+            $fournisseur = $this->FournisseurService->getFournisseur($details[$i]['fournisseur']);
+            
+            $detail->setDesignation($details[$i]['designation']);
+            $detail->setFournisseur($fournisseur);
+            $detail->setCoutAchat($details[$i]['cout_achat']);
+            $detail->setPrixHt($details[$i]['prix_ht']);
+            $detail->setUnite($details[$i]['unite']);
+            $detail->setUniteNecessaire($details[$i]['unite_necessaire']);
+
+            $detail->setIdRevient($revient);
+            $this->em->persist($detail);
+
+        }
+
 
         $this->em->flush();
 
@@ -129,5 +153,10 @@ class RevientService
     public function getDetailsRevient($id)
     {
         return $this->detailRevientRepo->findByIdRevient($id);
+    }
+    public function deleteDetailRevient(DetailRevient $revient)
+    {
+        $this->em->remove($revient);
+        $this->em->flush();
     }
 }

@@ -8,6 +8,7 @@ use App\Repository\BlRepository;
 use App\Repository\DetailBlRepository;
 use App\Repository\EntityRepository;
 use App\Repository\ProduitRepository;
+use Doctrine\DBAL\Connection;
 use Doctrine\ORM\EntityManagerInterface;
 
 class BlService
@@ -19,7 +20,9 @@ class BlService
 
     private $DetailRepo;
 
-    public function __construct(EntityManagerInterface $em, BlRepository $blRepo , EntityRepository $EntityRepo, ProduitRepository $ProduitRepo, DetailBlRepository $DetailRepo)
+    public function __construct(
+        private Connection $conn,
+        EntityManagerInterface $em, BlRepository $blRepo , EntityRepository $EntityRepo, ProduitRepository $ProduitRepo, DetailBlRepository $DetailRepo)
     {
         $this->em = $em;
         $this->blRepo = $blRepo;
@@ -118,6 +121,10 @@ class BlService
 
     public function deleteBl(Bl $bl): void
     {
+        $detailsBl = $this->getDetailsBl($bl->getId());
+        foreach ($detailsBl as $d) {
+            $this->deleteDetail($d);
+        }
         $this->em->remove($bl);
         $this->em->flush();
     }
@@ -147,4 +154,72 @@ class BlService
         
         return $this->blRepo->findMaxBl();
     }
+
+    public function getDataBl($filterType, $dateDebut, $dateFin, $annee, $mois, $entitySelect)
+    {
+        $montant = 0;
+        $sql = 'SELECT c.* FROM bl c where 1=1   ';
+        
+        
+        // Filter by date range
+        if ($filterType === 'date') {
+            $dateDebut = $dateDebut . " 00:00:00";
+            $dateFin = $dateFin . " 23:59:59";
+            $sql .= ' AND c.date BETWEEN :dateDebut AND :dateFin';
+        }
+    
+        // Filter by year and optionally month
+        if ($filterType === 'year') {
+            $sql .= ' AND YEAR(c.date) = :annee';
+            if ($mois) {
+                $sql .= ' AND MONTH(c.date) = :mois';
+            }
+        }
+
+        // Filter by date range
+        if ($entitySelect != '') {
+            $sql .= ' AND c.entity_id = '.$entitySelect.'';
+        }
+
+    
+        $stmt = $this->conn->prepare($sql);
+
+
+    
+        // Bind parameters
+        if ($filterType === 'date') {
+            $stmt->bindValue('dateDebut', $dateDebut);
+            $stmt->bindValue('dateFin', $dateFin);
+        }
+    
+        if ($filterType === 'year') {
+            $stmt->bindValue('annee', $annee);
+            if ($mois) {
+                $stmt->bindValue('mois', $mois);
+            }
+        }
+
+    
+        $stmt = $stmt->executeQuery();
+        $resulat = $stmt->fetchAll();
+
+        $list = [];
+        for ($i=0; $i < count($resulat) ; $i++) { 
+            $list[$i] =  $resulat[$i];
+
+            $qte = 0;
+            $details = $this->getDetailsBl($resulat[$i]['id']);
+            foreach ($details as $d) {
+                $qte += $d->getQte();
+            }
+            $list[$i]['qte'] =  $qte;
+            $montant += $qte;
+        }
+
+        $data['list'] = $list;
+        $data['montant'] = $montant;
+
+        return $data;
+    }
+
 }

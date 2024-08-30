@@ -70,20 +70,24 @@ class AchatGeneralRepository extends ServiceEntityRepository
     //     return $res->fetchAllAssociative();
     // }
    
-
     public function findByMonthYearAndFournisseur($month, $year, $fournisseurId)
     {
-        return $this->createQueryBuilder('a')
-            ->where('MONTH(a.date) = :month')
-            ->andWhere('YEAR(a.date) = :year')
-            ->andWhere('a.id_fournisseur_id = :fournisseurId')
-            ->setParameter('month', $month)
-            ->setParameter('year', $year)
-            ->setParameter('fournisseurId', $fournisseurId)
-            ->getQuery()
-            ->getResult();
+        $query = $this->em->createQuery(
+            'SELECT d 
+             FROM App\Entity\AchatGeneral d
+             WHERE d.id_fournisseur = :fournisseurId'
+        )
+        ->setParameter('fournisseurId', $fournisseurId);
+    
+        $results = $query->getResult();
+    
+        // Filter results by month and year
+        $filteredResults = array_filter($results, function ($item) use ($month, $year) {
+            $date = $item->getDate(); // Assuming you have a getDate() method
+            return $date->format('m') == $month && $date->format('Y') == $year;
+        });
+    
+        return $filteredResults;
     }
-
-
-
+    
 }

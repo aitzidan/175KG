@@ -174,7 +174,6 @@ class AchatGeneralController extends AbstractController
     public function listGeneral(Request $request): Response
     {
         $list = []; // Assuming this will be filled with your data
-
         $chckAccess = $this->BaseService->Role(73);
         if($chckAccess == 0){
             return $this->redirectToRoute('login');
@@ -217,16 +216,16 @@ class AchatGeneralController extends AbstractController
         if ($request->isMethod('POST')) {
             // Process form data here
             $filterType = $request->request->get('filter_type');
-            $dateDebut = $request->request->get('date_debut');
-            $dateFin = $request->request->get('date_fin');
+            $date_debut = $request->request->get('date_debut');
+            $date_fin = $request->request->get('date_fin');
             $annee = $request->request->get('annee');
             $mois = $request->request->get('mois');
 
             $fournisseur = $request->request->get('fournisseur');
-            
-            $list = $this->AchatGeneralService->getDateByFiltrage($filterType , $dateDebut , $dateFin , $annee , $mois , $fournisseur);
+           
+            $list = $this->AchatGeneralService->getDateByFiltrage($filterType , $date_debut , $date_fin , $annee , $mois , $fournisseur);
 
-            $montant = $this->AchatGeneralService->getMontant($filterType , $dateDebut , $dateFin , $annee , $mois , $fournisseur) ?? 0;
+            $montant = $this->AchatGeneralService->getMontant($filterType , $date_debut , $date_fin , $annee , $mois , $fournisseur) ?? 0;
             
         }else{
             $list = $this->AchatGeneralService->getAchatGeneral($date_debut , $date_fin );

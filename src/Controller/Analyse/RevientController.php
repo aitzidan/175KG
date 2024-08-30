@@ -104,7 +104,7 @@ class RevientController extends AbstractController
 
             $checkData = $this->RevientService->checkData($data);
 
-            if (!$checkData || !$checkDataDetails) {
+            if (!$checkData ) {
                 $codeStatut = 'ERREUR-PARAMS-VIDE';
             } else {
                 $checkData = $this->RevientService->addRevient($data,$dataDetails);
@@ -189,7 +189,7 @@ class RevientController extends AbstractController
 
             $checkData = $this->RevientService->checkData($data);
 
-            if (!$checkData || !$checkDataDetails) {
+            if (!$checkData ) {
                 $codeStatut = 'ERREUR-PARAMS-VIDE';
             } else {
                 $checkData = $this->RevientService->saveRevient($data,$dataDetails,$revient);
@@ -222,6 +222,11 @@ class RevientController extends AbstractController
 
         $revient = $this->RevientService->getRevient($id);
 
+        $details = $this->RevientService->getDetailsRevient($id);
+        foreach ($details as $d) {
+            $this->RevientService->deleteDetailRevient($d);
+            # code...
+        }
         $this->RevientService->deleteRevient($revient);
 
         $codeStatut = "OK";

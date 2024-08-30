@@ -76,15 +76,15 @@ class caisseController extends AbstractController
         if ($request->isMethod('POST')) {
             // Process form data here
             $filterType = $request->request->get('filter_type');
-            $dateDebut = $request->request->get('date_debut');
-            $dateFin = $request->request->get('date_fin');
+            $date_debut = $request->request->get('date_debut');
+            $date_fin = $request->request->get('date_fin');
             $annee = $request->request->get('annee');
             $mois = $request->request->get('mois');
             
-            $list = $this->CaisseService->getDataByFilter($filterType , $dateDebut , $dateFin , $annee , $mois);
-            $Espece = $this->CaisseService->getTheEspece($filterType , $dateDebut , $dateFin , $annee , $mois);
-            $TPE = $this->CaisseService->getTpe($filterType , $dateDebut , $dateFin , $annee , $mois);
-            $ECART = $this->CaisseService->getEcart($filterType , $dateDebut , $dateFin , $annee , $mois);
+            $list = $this->CaisseService->getDataByFilter($filterType , $date_debut , $date_fin , $annee , $mois);
+            $Espece = $this->CaisseService->getTheEspece($filterType , $date_debut , $date_fin , $annee , $mois);
+            $TPE = $this->CaisseService->getTpe($filterType , $date_debut , $date_fin , $annee , $mois);
+            $ECART = $this->CaisseService->getEcart($filterType , $date_debut , $date_fin , $annee , $mois);
 
         }else{
             $list = $this->CaisseService->getDataByFilter2($date_debut , $date_fin);

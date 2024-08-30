@@ -104,10 +104,10 @@
         $('#btnImport').css('disabled', true);
 
         var formData = new FormData(this);
-
+        const id = '{{id}}'
         $.ajax({
             type: "POST",
-            url: "/fournisseur/ajaxAddFournisseur", // Make sure this URL is correct
+            url: "/fournisseur/ajaxUpdateFournisseur/"+id, // Make sure this URL is correct
             data: formData,
             cache: false,
             processData: false,

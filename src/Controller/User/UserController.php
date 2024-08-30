@@ -58,12 +58,12 @@ class UserController extends AbstractController
         }
         else
         {
-            return $this->redirect('/dashbord');
+            return $this->redirect('/dashboard');
         }
     }
 
-    // #[Route('/dashbord', name: 'dashbord')]
-    // public function DashbordAction(Request $request, EntityManagerInterface $entityManager)
+    // #[Route('/dashboard', name: 'dashboard')]
+    // public function dashboardAction(Request $request, EntityManagerInterface $entityManager)
     // {
     //     $session = new Session();
     //     $isConnected = $session->get('isConnected');
@@ -103,7 +103,7 @@ class UserController extends AbstractController
                 $session->set('username', $user->getUsername());
                 $session->set('isConnected',true);
                 // Redirect the user to a dashboard or another page
-                return $this->redirectToRoute('listUsers'); 
+                return $this->redirectToRoute('tableauBoard'); 
             } 
             else {
                 $response = $loginResult['message'];
@@ -602,9 +602,6 @@ class UserController extends AbstractController
             return $this->json($this->BaseService->errorAccess());
         }
 
-
-
-       
 
         try 
         {

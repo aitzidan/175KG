@@ -70,26 +70,75 @@
                                     <p>Tableau de board</p>
                                 </a>
                             </li>
-
-                            <li class="nav-item">
-                                <a href="/achat-general/add">
+                              <li class="nav-item">
+                                <a data-bs-toggle="collapse" href="#sidebarAchat">
                                 <i class="fas fa-box"></i>
-                                    <p>Achat géneral</p>
+                                <p>Achat géneral</p>
+                                <span class="caret"></span>
                                 </a>
+                                <div class="collapse" id="sidebarAchat">
+                                <ul class="nav nav-collapse">
+                                    <li>
+                                    <a href="/achat-general/add">
+                                        <span class="sub-item">Ajouter une achat géneral</span>
+                                    </a>
+                                    </li>
+                                     <li>
+                                    <a href="/achat-general/list">
+                                        <span class="sub-item">Liste des achats</span>
+                                    </a>
+                                    </li>
+                                </ul>
+                                </div>
                             </li>
 
-                            <li class="nav-item">
-                                <a href="/caisse/add">
+
+
+                             <li class="nav-item">
+                                <a data-bs-toggle="collapse" href="#sidebarCaisse">
                                 <i class="fa fa-calculator"></i>
                                 <p>Caisse</p>
+                                <span class="caret"></span>
                                 </a>
+                                <div class="collapse" id="sidebarCaisse">
+                                <ul class="nav nav-collapse">
+                                    <li>
+                                    <a href="/caisse/add">
+                                        <span class="sub-item">Ajouter une caisse</span>
+                                    </a>
+                                    </li>
+                                     <li>
+                                    <a href="/caisse/list">
+                                        <span class="sub-item">Liste caisse</span>
+                                    </a>
+                                    </li>
+                                </ul>
+                                </div>
                             </li>
 
+
+                            
+
                             <li class="nav-item">
-                                <a href="/bl/add">
+                                <a data-bs-toggle="collapse" href="#sidebarBl">
                                 <i class="fas fa-truck"></i>
                                 <p>Éxpédition</p>
+                                <span class="caret"></span>
                                 </a>
+                                <div class="collapse" id="sidebarBl">
+                                <ul class="nav nav-collapse">
+                                    <li>
+                                    <a href="/bl/add">
+                                        <span class="sub-item">Ajouter une expédition</span>
+                                    </a>
+                                    </li>
+                                     <li>
+                                    <a href="/bl/list">
+                                        <span class="sub-item">Liste espédition</span>
+                                    </a>
+                                    </li>
+                                </ul>
+                                </div>
                             </li>
 
                             <li class="nav-item">
@@ -107,7 +156,13 @@
                                     </li>
                                      <li>
                                     <a href="/revient/add">
-                                        <span class="sub-item">Calcul revient</span>
+                                        <span class="sub-item">Calcul coût  revient</span>
+                                    </a>
+                                    </li>
+
+                                    <li>
+                                    <a href="/revient/list">
+                                        <span class="sub-item">Liste coût  revient</span>
                                     </a>
                                     </li>
                                 </ul>
@@ -194,6 +249,8 @@
                     </div>
                 </div>
             </div>
+
+
             <div class="main-panel">
             <div class="main-header">
                 <div class="main-header-logo">
@@ -201,7 +258,6 @@
                     <div class="logo-header" data-background-color="dark">
                     <a href="../index.html" class="logo">
                         <img
-
                         src="{{ asset('assets/img/kaiadmin/logo_light.svg')}}"
                         alt="navbar brand"
                         class="navbar-brand"
@@ -225,8 +281,16 @@
                 <nav
                     class="navbar navbar-header navbar-header-transparent navbar-expand-lg border-bottom"
                     >
-                    <div class="container-fluid">
-                   
+                    <div class="container-fluid d-flex justify-content-end">
+                        <a href="/logout">
+                        <img
+                        src="{{ asset('assets/img/logout.png')}}"
+                        alt="navbar brand"
+                        class="navbar-brand"
+                        style="    width: 17px;
+    height: 22px;"
+                        /> Déconnecter
+                        </a>
                     </div>
                 </nav>
                 <!-- End Navbar -->

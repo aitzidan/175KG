@@ -1,0 +1,35 @@
+<style>
+
+</style>
+<table class="display table table-striped table-hover">
+    <thead>
+        <tr>
+            <th style="font-size: larger;">Date</th>
+            <th style="font-size: larger;">Numéro</th>
+            <th style="font-size: larger;">Quantité</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in bl %}
+            <tr>
+                <td>{{ item.date }}</td>
+                <td>{{ item.code }}</td>
+                <td>{{ item.qte }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<p style="font-size: x-large;font-weight: 600;">Total : {{ montant }}</p>
+
+<script>
+      $(document).ready(function() {
+table = $('.table').DataTable({
+                    language: {
+                        url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/fr-FR.json',
+                    },
+                });
+      })
+
+
+</script>

@@ -132,7 +132,7 @@ class AchatGeneralService
 
     public function getDateByFiltrage($filterType, $dateDebut, $dateFin, $annee, $mois , $fournisseur)
     {
-        $sql = 'SELECT t.* FROM achat_general t where 1 = 1';
+        $sql = 'SELECT t.* FROM achat_general t where 1 = 1 ';
 
         if ($filterType === 'date') {
             $dateDebut = $dateDebut . " 00:00:00";
@@ -150,9 +150,6 @@ class AchatGeneralService
             $sql .= ' AND t.id_fournisseur_id = '.$fournisseur.'';
         }
 
-
-        
-        
 
         $stmt = $this->conn->prepare($sql);
 
@@ -230,10 +227,29 @@ class AchatGeneralService
         return $result;
     }
 
+    public function getAchatGeneralDash( $dateDebut, $dateFin)
+    {
+        $sql = 'SELECT t.* FROM achat_general t where 1 = 1 and t.etat = 1';
+
+        $dateDebut = $dateDebut . " 00:00:00";
+        $dateFin = $dateFin . " 23:59:59";
+        $sql .= ' and t.date BETWEEN :dateDebut AND :dateFin';
+
+        $stmt = $this->conn->prepare($sql);
+
+        $stmt->bindValue('dateDebut', $dateDebut);
+        $stmt->bindValue('dateFin', $dateFin);
+
+        $stmt = $stmt->executeQuery();
+        $result = $stmt->fetchAll();
+        return $result;
+    }
+    
+
     
     public function getMontantAchatGeneral( $dateDebut, $dateFin)
     {
-        $sql = 'SELECT SUM(t.montant) FROM achat_general t where 1 = 1';
+        $sql = 'SELECT SUM(t.montant) FROM achat_general t where 1 = 1 and t.etat = 1';
 
         $dateDebut = $dateDebut . " 00:00:00";
         $dateFin = $dateFin . " 23:59:59";
@@ -261,5 +277,6 @@ class AchatGeneralService
         $this->em->flush();
     }
 
+    
 
 }

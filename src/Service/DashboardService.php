@@ -49,6 +49,7 @@ class DashboardService
 
             $result[] = [
                 'rs' => $fournisseur->getRs(),
+                'id' => $fournisseur->getId(),
                 'monthlyTotals' => $monthlyTotals,
                 'totalGeneral' => $totalGeneral,
             ];

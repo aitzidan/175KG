@@ -106,7 +106,7 @@ class CaisseService
     
     public function getDataByFilter($filterType, $dateDebut, $dateFin, $annee, $mois)
     {
-        $sql = 'SELECT c.* FROM caisse_magasin c';
+        $sql = 'SELECT c.* FROM caisse_magasin c  ';
     
         // Filter by date range
         if ($filterType === 'date') {
@@ -143,24 +143,78 @@ class CaisseService
         return $resulat;
     }
 
-    public function getTheEspece($filterType, $dateDebut, $dateFin, $annee, $mois)
+    public function getDataByFilterDash($filterType, $dateDebut, $dateFin, $annee, $mois, $caisseSelect)
     {
-        $sql = 'SELECT SUM(c.espece_final) FROM caisse_magasin c';
+        $sql = 'SELECT c.* FROM caisse_magasin c where c.etat = 1  ';
+        
+        
+        // Filter by date range
+        if ($filterType === 'date') {
+            $dateDebut = $dateDebut . " 00:00:00";
+            $dateFin = $dateFin . " 23:59:59";
+            $sql .= ' AND c.date BETWEEN :dateDebut AND :dateFin';
+        }
+    
+        // Filter by year and optionally month
+        if ($filterType === 'year') {
+            $sql .= ' AND YEAR(c.date) = :annee';
+            if ($mois) {
+                $sql .= ' AND MONTH(c.date) = :mois';
+            }
+        }
+
+        // Filter by date range
+        if ($caisseSelect != '') {
+            $sql .= ' AND c.id_caisse_id = '.$caisseSelect.'';
+        }
+
+    
+        $stmt = $this->conn->prepare($sql);
+    
+        // Bind parameters
+        if ($filterType === 'date') {
+            $stmt->bindValue('dateDebut', $dateDebut);
+            $stmt->bindValue('dateFin', $dateFin);
+        }
+    
+        if ($filterType === 'year') {
+            $stmt->bindValue('annee', $annee);
+            if ($mois) {
+                $stmt->bindValue('mois', $mois);
+            }
+        }
+
+    
+        $stmt = $stmt->executeQuery();
+        $resulat = $stmt->fetchAll();
+        return $resulat;
+    }
+
+    public function getTheEspece($filterType, $dateDebut, $dateFin, $annee, $mois , ? String $caisseSelect)
+    {
+        $sql = 'SELECT SUM(c.espece_final) FROM caisse_magasin c ';
     
         // Filter by date range
         if ($filterType === 'date') {
             $dateDebut = $dateDebut . " 00:00:00";
             $dateFin = $dateFin . " 23:59:59";
-            $sql .= ' WHERE c.date BETWEEN :dateDebut AND :dateFin';
+            $sql .= ' where c.date BETWEEN :dateDebut AND :dateFin';
         }
     
         // Filter by year and optionally month
         if ($filterType === 'year') {
-            $sql .= ' WHERE YEAR(c.date) = :annee';
+            $sql .= ' where YEAR(c.date) = :annee';
             if ($mois) {
                 $sql .= ' AND MONTH(c.date) = :mois';
             }
         }
+
+         // Filter by date range
+         if ($caisseSelect != '') {
+            $sql .= ' AND c.id_caisse_id = '.$caisseSelect.'';
+        }
+
+    
     
         $stmt = $this->conn->prepare($sql);
     
@@ -182,7 +236,7 @@ class CaisseService
         return $resulat;
     }
     
-    public function getTpe($filterType, $dateDebut, $dateFin, $annee, $mois)
+    public function getTpe($filterType, $dateDebut, $dateFin, $annee, $mois, ? String $caisseSelect)
     {
         $sql = 'SELECT SUM(c.tpe) FROM caisse_magasin c';
     
@@ -200,6 +254,12 @@ class CaisseService
                 $sql .= ' AND MONTH(c.date) = :mois';
             }
         }
+
+         // Filter by date range
+         if ($caisseSelect != '') {
+            $sql .= ' AND c.id_caisse_id = '.$caisseSelect.'';
+        }
+
     
         $stmt = $this->conn->prepare($sql);
     
@@ -221,7 +281,7 @@ class CaisseService
         return $resulat;
     }
     
-    public function getEcart($filterType, $dateDebut, $dateFin, $annee, $mois)
+    public function getEcart($filterType, $dateDebut, $dateFin, $annee, $mois, ? String $caisseSelect)
     {
         $sql = 'SELECT SUM(c.ecart) FROM caisse_magasin c';
     
@@ -239,6 +299,12 @@ class CaisseService
                 $sql .= ' AND MONTH(c.date) = :mois';
             }
         }
+
+         // Filter by date range
+         if ($caisseSelect != '') {
+            $sql .= ' AND c.id_caisse_id = '.$caisseSelect.'';
+        }
+
     
         $stmt = $this->conn->prepare($sql);
     
@@ -263,12 +329,29 @@ class CaisseService
 
     public function getDataByFilter2( $dateDebut, $dateFin)
     {
-        $sql = 'SELECT c.* FROM caisse_magasin c';
-    
+        
+        $sql = 'SELECT c.* FROM caisse_magasin c ';
         // Filter by date range
         $dateDebut = $dateDebut . " 00:00:00";
         $dateFin = $dateFin . " 23:59:59";
         $sql .= ' WHERE c.date BETWEEN :dateDebut AND :dateFin';
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindValue('dateDebut', $dateDebut);
+        $stmt->bindValue('dateFin', $dateFin);
+        $stmt = $stmt->executeQuery();
+        $resulat = $stmt->fetchAll();
+        return $resulat;
+    }
+
+    
+    public function getDataByFilter2Dash( $dateDebut, $dateFin)
+    {
+        $sql = 'SELECT c.* FROM caisse_magasin c where c.etat = 1';
+    
+        // Filter by date range
+        $dateDebut = $dateDebut . " 00:00:00";
+        $dateFin = $dateFin . " 23:59:59";
+        $sql .= ' AND c.date BETWEEN :dateDebut AND :dateFin';
 
         $stmt = $this->conn->prepare($sql);
         $stmt->bindValue('dateDebut', $dateDebut);
@@ -282,12 +365,12 @@ class CaisseService
 
     public function getTheEspece2( $dateDebut, $dateFin)
     {
-        $sql = 'SELECT SUM(c.espece_final) FROM caisse_magasin c';
+        $sql = 'SELECT SUM(c.espece_final) FROM caisse_magasin c where c.etat = 1';
     
         // Filter by date range
         $dateDebut = $dateDebut . " 00:00:00";
         $dateFin = $dateFin . " 23:59:59";
-        $sql .= ' WHERE c.date BETWEEN :dateDebut AND :dateFin';
+        $sql .= ' and c.date BETWEEN :dateDebut AND :dateFin';
 
         $stmt = $this->conn->prepare($sql);
         $stmt->bindValue('dateDebut', $dateDebut);
@@ -300,11 +383,11 @@ class CaisseService
     
     public function getTpe2($dateDebut, $dateFin)
     {
-        $sql = 'SELECT SUM(c.tpe) FROM caisse_magasin c';
+        $sql = 'SELECT SUM(c.tpe) FROM caisse_magasin c where c.etat = 1';
         // Filter by date range
         $dateDebut = $dateDebut . " 00:00:00";
         $dateFin = $dateFin . " 23:59:59";
-        $sql .= ' WHERE c.date BETWEEN :dateDebut AND :dateFin';
+        $sql .= ' AND c.date BETWEEN :dateDebut AND :dateFin';
 
         $stmt = $this->conn->prepare($sql);
         $stmt->bindValue('dateDebut', $dateDebut);
@@ -317,11 +400,11 @@ class CaisseService
 
     public function getEcart2($dateDebut, $dateFin)
     {
-        $sql = 'SELECT SUM(c.ecart) FROM caisse_magasin c';
+        $sql = 'SELECT SUM(c.ecart) FROM caisse_magasin c where c.etat = 1';
         // Filter by date range
         $dateDebut = $dateDebut . " 00:00:00";
         $dateFin = $dateFin . " 23:59:59";
-        $sql .= ' WHERE c.date BETWEEN :dateDebut AND :dateFin';
+        $sql .= ' and c.date BETWEEN :dateDebut AND :dateFin';
 
         $stmt = $this->conn->prepare($sql);
         $stmt->bindValue('dateDebut', $dateDebut);
@@ -331,6 +414,7 @@ class CaisseService
         $resulat = $stmt->fetchOne();
         return $resulat;
     }
+
     public function getCaisse($id){
         return $this->caisseRepo->find($id);
     }

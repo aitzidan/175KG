@@ -117,7 +117,7 @@
             if (result.isConfirmed) {
 
                 $.ajax({
-                    url: "/produit/delete/"+id,
+                    url: "/bl/delete/"+id,
                     type: "POST",
                     data: {id: id},
                     success: function(data) {

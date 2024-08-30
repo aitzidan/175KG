@@ -26,7 +26,8 @@ class MessageService
             "ERROR_ENTETE" => "Veuillez vérifier l'entête du fichier",
             "ERROR_DATE" => "Veuillez vérifier votre date",
             "ERROR_FILE" => "Veuillez vérifier l'entête du fichier",
-            "ERROR_UPLOAD_DATA" => "Erreur dans la sauvegarde des données"
+            "ERROR_UPLOAD_DATA" => "Erreur dans la sauvegarde des données",
+            "ERREUR-TELEPHONE-INVALID"=>"Veuillez vérifier votre format télephone"
         );
 
         return $listMessage[$CODEERROR];

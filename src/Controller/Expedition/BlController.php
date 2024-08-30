@@ -164,8 +164,6 @@ class BlController extends AbstractController
             return $this->json($this->BaseService->errorAccess());
         }
 
-
-
         $bl = $this->blService->getBl($id);
         $data = [
             'date' => $request->get('date'),
@@ -227,8 +225,10 @@ class BlController extends AbstractController
             return $this->json($this->BaseService->errorAccess());
         }
 
+        
 
         $bl = $this->blService->getBl($id);
+        $respObjects["data"] = $bl;
 
         if ($bl) {
             $this->blService->deleteBl($bl);
@@ -241,6 +241,8 @@ class BlController extends AbstractController
         $respObjects["message"] = $this->messageService->checkMessage($codeStatut);
         return $this->json($respObjects);
     }
+
+    
 
     #[Route('/bl/getDetailsBl/{id}', name: 'getDetailsBl')]
     public function getDetailsBl($id): Response
